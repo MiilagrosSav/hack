@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HydroGuard — Monitoreo de Invernaderos</title>
+    <!-- Fuentes Google: Plus Jakarta Sans / Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- CONTENEDOR PRINCIPAL FLUIDO Y RESPONSIVE (Mobile & Desktop) -->
+    <div class="app-layout">
+
+        <!-- SIDEBAR DE ESCRITORIO (Visible en Desktop / Oculto en Mobile) -->
+        <aside class="desktop-sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo-circle">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <div>
+                    <h1 class="brand-name">HydroGuard</h1>
+                    <p class="brand-location"><i class="fa-solid fa-location-dot"></i> Misiones · Oberá</p>
+                </div>
+            </div>
+
+            <div class="sidebar-user-card">
+                <div class="sidebar-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="sidebar-user-info">
+                    <h4>Carlos Productor</h4>
+                    <span class="user-plan-tag plan-base" id="sidebarPlanTag">Plan Base Activo</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#secAlerts" class="sidebar-link active"><i class="fa-solid fa-bell"></i> Centro de Alertas
+                    <span class="badge-count" id="sidebarAlertCount">2</span></a>
+                <a href="#secEnvironment" class="sidebar-link"><i class="fa-solid fa-cloud-sun"></i> Microclima
+                    Invernadero</a>
+                <a href="#secTanks" class="sidebar-link"><i class="fa-solid fa-water"></i> Tanques de Solución</a>
+                <a href="#secGenerator" class="sidebar-link nav-estandar" id="sidebarLinkGen" style="display: none;"><i class="fa-solid fa-charging-station text-amber"></i> Generador & Diésel</a>
+                <a href="#secSolar" class="sidebar-link nav-premium" id="sidebarLinkSolar" style="display: none;"><i class="fa-solid fa-solar-panel text-violet"></i> Sistema Solar & Bat.</a>
+            </nav>
+
+            <div class="sidebar-quick-actions">
+                <button class="btn-sidebar-add" onclick="addNewTankPrompt()"><i class="fa-solid fa-plus"></i> Nuevo
+                    Tanque</button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="status-indicator-box">
+                    <span class="status-dot"></span>
+                    <span>Red Eléctrica: <strong>Operativa</strong></span>
+                </div>
+                <small>HydroGuard OS v1.2 · 2026</small>
+            </div>
+        </aside>
+
+        <!-- ÁREA PRINCIPAL DE CONTENIDO -->
+        <div class="main-viewport">
+
+            <!-- HEADER SUPERIOR (Garantiza Nombre Visible en Mobile y Desktop) -->
+            <header class="app-header">
+                <!-- Fila 1: Hamburguesa + Nombre de Marca Claro + Campana -->
+                <div class="header-top-row">
+                    <button class="icon-btn mobile-only" id="btnHamburger" onclick="toggleMenu()"
+                        aria-label="Abrir Menú">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+
+                    <div class="mobile-brand-group">
+                        <div class="brand-logo-circle">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <div class="brand-text-container">
+                            <h1 class="brand-name">HydroGuard</h1>
+                            <p class="brand-location"><i class="fa-solid fa-location-dot"></i> <span
+                                    id="lblLocation">Misiones · Oberá</span></p>
+                        </div>
+                    </div>
+
+                    <div class="header-actions">
+                        <button class="notification-btn" onclick="scrollToAlerts()" aria-label="Notificaciones">
+                            <i class="fa-regular fa-bell"></i>
+                            <span class="notif-badge" id="notifBadge">2</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fila 2: Selector de Invernadero y Plan Interactivo -->
+                <div class="header-sub-row">
+                    <div class="gh-selector-pill">
+                        <span class="gh-dot"></span>
+                        <select id="ghSelect" onchange="changeGreenhouse()">
+                            <option value="1">🌱 Invernadero #1 (Lechuga NFT)</option>
+                            <option value="2">🌿 Invernadero #2 (Albahaca & Rúcula)</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                    </div>
+                    <button class="user-plan-pill plan-base" id="userPlanPill" onclick="cyclePlan()" title="Presione para alternar Plan (Base -> Estándar -> Premium)">
+                        <i class="fa-solid fa-leaf plan-pill-icon" id="planPillIcon"></i>
+                        <span id="txtUserPlan">PLAN BASE</span>
+                        <i class="fa-solid fa-arrows-rotate plan-pill-rotate"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENIDO PRINCIPAL SCROLLABLE -->
+            <main class="content-scroll">
+
+                <!-- 0. ESTADO DE RED / SUMINISTRO 
+                <section class="card status-network-card">
+                    <div class="network-icon-box">
+                        <i class="fa-solid fa-bolt text-emerald"></i>
+                    </div>
+                    <div class="network-info">
+                        <span class="card-subtitle">Suministro de Energía de Red</span>
+                        <h3 class="network-title" id="networkStatusText">Línea Operativa y Estable</h3>
+                    </div>
+                    <div class="status-tag status-online">
+                        <span class="status-dot"></span> En línea
+                    </div>
+                </section> -->
+
+                <!-- 1. CENTRO DE ALERTAS TEMPRANAS -->
+                <section class="section-container" id="secAlerts">
+                    <div class="section-title-row">
+                        <div class="title-with-icon">
+                            <i class="fa-solid fa-triangle-exclamation text-rose"></i>
+                            <h2>Centro de Alertas Tempranas</h2>
+                        </div>
+                        <span class="count-badge-active" id="activeAlertsCount">2 activas</span>
+                    </div>
+
+                    <div class="alerts-feed" id="alertsFeed">
+                        <!-- Alerta Crítica (Tanque) -->
+                        <div class="alert-card critical" id="alertCardTank1">
+                            <div class="alert-card-top">
+                                <div class="alert-type-group">
+                                    <div class="alert-icon-circle critical">
+                                        <i class="fa-solid fa-droplet"></i>
+                                    </div>
+                                    <div class="alert-meta">
+                                        <span class="alert-category">Tanques y Solución Nutritiva</span>
+                                        <h4 class="alert-item-title">Tanque Principal #1</h4>
+                                    </div>
+                                </div>
+                                <span class="badge-status-pill badge-critical">CRÍTICO</span>
+                            </div>
+                            <p class="alert-description">
+                                Nivel de agua bajo (<strong>25%</strong>) y pH fuera de rango (<strong>7.2 pH</strong>).
+                            </p>
+                            <button class="btn-action-suggested critical" id="btnActionTank1"
+                                onclick="resolveAction('tanque')">
+                                <span>Acción sugerida: Recargar solución nutritiva</span>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <!-- Alerta Atención (Temperatura) -->
+                        <div class="alert-card warning">
+                            <div class="alert-card-top">
+                                <div class="alert-type-group">
+                                    <div class="alert-icon-circle warning">
+                                        <i class="fa-solid fa-temperature-half"></i>
+                                    </div>
+                                    <div class="alert-meta">
+                                        <span class="alert-category">Temperatura de Ambiente</span>
+                                        <h4 class="alert-item-title">Invernadero Nave A</h4>
+                                    </div>
+                                </div>
+                                <span class="badge-status-pill badge-warning">ATENCIÓN</span>
+                            </div>
+                            <p class="alert-description">
+                                Temperatura de agua elevada (<strong>26.5°C</strong>).
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. INFORMACIÓN DEL INVERNADERO (MICROCLIMA Y AMBIENTE - DISEÑO IDÉNTICO AL TANQUE) -->
+                <section class="section-container" id="secEnvironment">
+                    <div class="section-title-row">
+                        <div class="title-with-icon">
+                            <i class="fa-solid fa-cloud-sun text-emerald"></i>
+                            <h2>Microclima del Invernadero</h2>
+                        </div>
+                        <span class="last-sync-tag"><i class="fa-solid fa-clock-rotate-left"></i> En vivo</span>
+                    </div>
+
+                    <!-- Tarjeta de Microclima con la misma estructura y diseño de los tanques -->
+                    <div class="tank-card environment-card">
+                        <div class="tank-card-header">
+                            <div class="tank-title-group">
+                                <div class="tank-avatar-circle env-avatar">
+                                    <i class="fa-solid fa-seedling"></i>
+                                </div>
+                                <div>
+                                    <h3 class="tank-name">Ambiente General Nave #1</h3>
+                                    <span class="tank-capacity"><i class="fa-solid fa-location-crosshairs"></i> Sensores
+                                        de Nave Hidropónica NFT</span>
+                                </div>
+                            </div>
+                            <span class="status-indicator-pill opt">Óptimo</span>
+                        </div>
+
+                        <!-- Grilla de Sensores del Invernadero estructurada como los tanques -->
+                        <div class="tank-sensors-grid">
+                            <!-- 1. Temp Aire -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Temp. del Aire</span>
+                                    <i class="fa-solid fa-temperature-high text-amber"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>24.5</strong>
+                                    <small>°C</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>18.0 - 28.0 °C</strong></span>
+                            </div>
+
+                            <!-- 2. Humedad Aire -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Humedad Relativa</span>
+                                    <i class="fa-solid fa-droplet text-cyan"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>68</strong>
+                                    <small>%</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>55 - 80 %</strong></span>
+                            </div>
+
+                            <!-- 3. Radiación Solar -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Radiación Solar</span>
+                                    <i class="fa-solid fa-sun text-amber"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>650</strong>
+                                    <small>W/m²</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>200 - 900 W/m²</strong></span>
+                            </div>
+
+                            <!-- 4. Sensor CO2 -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Dióxido CO₂</span>
+                                    <i class="fa-solid fa-smog text-indigo"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>720</strong>
+                                    <small>ppm</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>400 - 1000 ppm</strong></span>
+                            </div>
+
+                            <!-- 5. Flujo de Aire -->
+                            <div class="tank-metric-item wide-span">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Flujo de Aire (Ventilación)</span>
+                                    <i class="fa-solid fa-wind text-emerald"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>1.4</strong>
+                                    <small>m/s</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>0.5 - 3.0 m/s</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. TANQUES DE SOLUCIÓN NUTRITIVA (1 SOLO TANQUE EN MOBILE + VER MÁS TANQUES) -->
+                <section class="section-container" id="secTanks">
+                    <div class="section-title-row">
+                        <div class="title-with-icon">
+                            <i class="fa-solid fa-water text-cyan"></i>
+                            <h2>Tanques de Solución Nutritiva</h2>
+                        </div>
+                        <div class="tanks-header-right">
+                            <span class="tanks-count-badge" id="tanksCountBadge">4 Tanques</span>
+                            <button class="btn-add-tank-inline" onclick="addNewTankPrompt()"><i
+                                    class="fa-solid fa-plus"></i> Agregar Tanque</button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Tanques -->
+                    <div class="tanks-responsive-grid" id="tanksContainer">
+
+                        <!-- TANQUE 1: Siempre visible en Mobile y Desktop (Sincronizado con Alerta Crítica) -->
+                        <div class="tank-card critical-card" id="tankCard1">
+                            <div class="tank-card-header">
+                                <div class="tank-title-group">
+                                    <div class="tank-avatar-circle critical-avatar" id="tankAvatar1">
+                                        <i class="fa-solid fa-cubes-stacked"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="tank-name">Tanque Principal #1</h3>
+                                        <span class="tank-capacity"><i class="fa-solid fa-flask"></i> Capacidad: 1,000
+                                            Litros (Línea NFT)</span>
+                                    </div>
+                                </div>
+                                <span class="status-indicator-pill crit" id="tankStatusPill1">Atención</span>
+                            </div>
+
+                            <!-- Los 6 Sensores del Tanque con sus Rangos -->
+                            <div class="tank-sensors-grid">
+                                <!-- 1. pH (En Rojo / Crítico) -->
+                                <div class="tank-metric-item critical-metric" id="metricBoxPH1">
+                                    <div class="tank-metric-top">
+                                        <span class="tank-metric-name">pH del Agua</span>
+                                        <i class="fa-solid fa-vial text-rose" id="iconPH1"></i>
+                                    </div>
+                                    <div class="tank-metric-val-row">
+                                        <strong id="valPH1" class="text-rose">7.2</strong>
+                                        <small>pH</small>
+                                    </div>
+                                    <span class="tank-metric-range text-rose" id="rangePH1">Rango: <strong>Fuera (5.5 -
+                                            6.5)</strong></span>
+                                </div>
+
+                                <!-- 2. Conductividad EC -->
+                                <div class="tank-metric-item" id="metricBoxEC1">
+                                    <div class="tank-metric-top">
+                                        <span class="tank-metric-name">Conductividad (EC)</span>
+                                        <i class="fa-solid fa-flask text-indigo"></i>
+                                    </div>
+                                    <div class="tank-metric-val-row">
+                                        <strong id="valEC1">1.6</strong>
+                                        <small>mS/cm</small>
+                                    </div>
+                                    <span class="tank-metric-range">Rango Óptimo: <strong>1.2 - 2.0</strong></span>
+                                </div>
+
+                                <!-- 3. Cantidad / Nivel de Agua (En Rojo / 25%) -->
+                                <div class="tank-metric-item critical-metric" id="metricBoxLevel1">
+                                    <div class="tank-metric-top">
+                                        <span class="tank-metric-name">Nivel de Agua</span>
+                                        <i class="fa-solid fa-water-ladder text-rose" id="iconLevel1"></i>
+                                    </div>
+                                    <div class="tank-metric-val-row">
+                                        <strong id="valLevel1" class="text-rose">25</strong>
+                                        <small id="lblLiters1">% (250 L)</small>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill red" id="progressFillLevel1" style="width: 25%;">
+                                        </div>
+                                    </div>
+                                    <span class="tank-metric-range text-rose" id="rangeLevel1">Rango: <strong>Bajo (> 35
+                                            %)</strong></span>
+                                </div>
+
+                                <!-- 4. Temperatura del Líquido -->
+                                <div class="tank-metric-item">
+                                    <div class="tank-metric-top">
+                                        <span class="tank-metric-name">Temp. Líquido</span>
+                                        <i class="fa-solid fa-temperature-half text-amber"></i>
+                                    </div>
+                                    <div class="tank-metric-val-row">
+                                        <strong>21.5</strong>
+                                        <small>°C</small>
+                                    </div>
+                                    <span class="tank-metric-range">Rango Óptimo: <strong>18.0 - 24.0 °C</strong></span>
+                                </div>
+
+                                <!-- 5. Caudal -->
+                                <div class="tank-metric-item">
+                                    <div class="tank-metric-top">
+                                        <span class="tank-metric-name">Caudal Bomba</span>
+                                        <i class="fa-solid fa-faucet-drip text-cyan"></i>
+                                    </div>
+                                    <div class="tank-metric-val-row">
+                                        <strong>14.2</strong>
+                                        <small>L/min</small>
+                                    </div>
+                                    <span class="tank-metric-range">Rango Óptimo: <strong>10.0 - 18.0
+                                            L/min</strong></span>
+                                </div>
+
+                                <!-- 6. Aireación / Oxigenación -->
+                                <div class="tank-metric-item">
+                                    <div class="tank-metric-top">
+                                        <span class="tank-metric-name">Oxígeno Disuelto (DO)</span>
+                                        <i class="fa-solid fa-wind text-emerald"></i>
+                                    </div>
+                                    <div class="tank-metric-val-row">
+                                        <strong>7.8</strong>
+                                        <small>mg/L</small>
+                                    </div>
+                                    <span class="tank-metric-range">Rango Óptimo: <strong>> 6.5 mg/L</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CONTENEDOR DE TANQUES ADICIONALES (Colapsado por defecto, se despliega con "Ver más tanques") -->
+                        <div class="extra-tanks-wrapper" id="extraTanksSection">
+
+                            <!-- TANQUE 2: Secundario Almácigos -->
+                            <div class="tank-card">
+                                <div class="tank-card-header">
+                                    <div class="tank-title-group">
+                                        <div class="tank-avatar-circle secondary">
+                                            <i class="fa-solid fa-cubes-stacked"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="tank-name">Tanque Secundario #2</h3>
+                                            <span class="tank-capacity"><i class="fa-solid fa-flask"></i> Capacidad: 500
+                                                Litros (Mesa Almácigos)</span>
+                                        </div>
+                                    </div>
+                                    <span class="status-indicator-pill opt">Óptimo</span>
+                                </div>
+
+                                <div class="tank-sensors-grid">
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">pH del Agua</span><i
+                                                class="fa-solid fa-vial text-cyan"></i></div>
+                                        <div class="tank-metric-val-row"><strong>6.0</strong> <small>pH</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>5.5 - 6.5</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Conductividad
+                                                (EC)</span><i class="fa-solid fa-flask text-indigo"></i></div>
+                                        <div class="tank-metric-val-row"><strong>1.4</strong> <small>mS/cm</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>1.0 - 1.8</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Nivel de
+                                                Agua</span><i class="fa-solid fa-water-ladder text-emerald"></i></div>
+                                        <div class="tank-metric-val-row"><strong>92</strong> <small>% (460 L)</small>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div class="progress-fill green" style="width: 92%;"></div>
+                                        </div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>> 35 %</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Temp.
+                                                Líquido</span><i class="fa-solid fa-temperature-half text-amber"></i>
+                                        </div>
+                                        <div class="tank-metric-val-row"><strong>22.1</strong> <small>°C</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>18.0 - 24.0
+                                                °C</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Caudal
+                                                Bomba</span><i class="fa-solid fa-faucet-drip text-cyan"></i></div>
+                                        <div class="tank-metric-val-row"><strong>8.5</strong> <small>L/min</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>6.0 - 12.0
+                                                L/min</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Oxígeno Disuelto
+                                                (DO)</span><i class="fa-solid fa-wind text-emerald"></i></div>
+                                        <div class="tank-metric-val-row"><strong>8.1</strong> <small>mg/L</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>> 6.5 mg/L</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TANQUE 3: Tanque Rúcula -->
+                            <div class="tank-card">
+                                <div class="tank-card-header">
+                                    <div class="tank-title-group">
+                                        <div class="tank-avatar-circle">
+                                            <i class="fa-solid fa-cubes-stacked"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="tank-name">Tanque Reserva #3 (Rúcula & Espinaca)</h3>
+                                            <span class="tank-capacity"><i class="fa-solid fa-flask"></i> Capacidad: 800
+                                                Litros</span>
+                                        </div>
+                                    </div>
+                                    <span class="status-indicator-pill opt">Óptimo</span>
+                                </div>
+
+                                <div class="tank-sensors-grid">
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">pH del Agua</span><i
+                                                class="fa-solid fa-vial text-cyan"></i></div>
+                                        <div class="tank-metric-val-row"><strong>6.3</strong> <small>pH</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>5.5 - 6.5</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Conductividad
+                                                (EC)</span><i class="fa-solid fa-flask text-indigo"></i></div>
+                                        <div class="tank-metric-val-row"><strong>1.8</strong> <small>mS/cm</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>1.4 - 2.2</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Nivel de
+                                                Agua</span><i class="fa-solid fa-water-ladder text-emerald"></i></div>
+                                        <div class="tank-metric-val-row"><strong>85</strong> <small>% (680 L)</small>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div class="progress-fill green" style="width: 85%;"></div>
+                                        </div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>> 35 %</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Temp.
+                                                Líquido</span><i class="fa-solid fa-temperature-half text-amber"></i>
+                                        </div>
+                                        <div class="tank-metric-val-row"><strong>20.8</strong> <small>°C</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>18.0 - 24.0
+                                                °C</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Caudal
+                                                Bomba</span><i class="fa-solid fa-faucet-drip text-cyan"></i></div>
+                                        <div class="tank-metric-val-row"><strong>12.0</strong> <small>L/min</small>
+                                        </div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>10.0 - 16.0
+                                                L/min</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Oxígeno Disuelto
+                                                (DO)</span><i class="fa-solid fa-wind text-emerald"></i></div>
+                                        <div class="tank-metric-val-row"><strong>7.5</strong> <small>mg/L</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>> 6.5 mg/L</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TANQUE 4: Germinador -->
+                            <div class="tank-card">
+                                <div class="tank-card-header">
+                                    <div class="tank-title-group">
+                                        <div class="tank-avatar-circle secondary">
+                                            <i class="fa-solid fa-cubes-stacked"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="tank-name">Tanque #4 (Cámara de Germinación)</h3>
+                                            <span class="tank-capacity"><i class="fa-solid fa-flask"></i> Capacidad: 300
+                                                Litros</span>
+                                        </div>
+                                    </div>
+                                    <span class="status-indicator-pill opt">Óptimo</span>
+                                </div>
+
+                                <div class="tank-sensors-grid">
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">pH del Agua</span><i
+                                                class="fa-solid fa-vial text-cyan"></i></div>
+                                        <div class="tank-metric-val-row"><strong>5.9</strong> <small>pH</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>5.5 - 6.5</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Conductividad
+                                                (EC)</span><i class="fa-solid fa-flask text-indigo"></i></div>
+                                        <div class="tank-metric-val-row"><strong>1.1</strong> <small>mS/cm</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>0.8 - 1.4</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Nivel de
+                                                Agua</span><i class="fa-solid fa-water-ladder text-emerald"></i></div>
+                                        <div class="tank-metric-val-row"><strong>95</strong> <small>% (285 L)</small>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div class="progress-fill green" style="width: 95%;"></div>
+                                        </div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>> 35 %</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Temp.
+                                                Líquido</span><i class="fa-solid fa-temperature-half text-amber"></i>
+                                        </div>
+                                        <div class="tank-metric-val-row"><strong>23.0</strong> <small>°C</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>20.0 - 25.0
+                                                °C</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Caudal
+                                                Bomba</span><i class="fa-solid fa-faucet-drip text-cyan"></i></div>
+                                        <div class="tank-metric-val-row"><strong>5.0</strong> <small>L/min</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>4.0 - 8.0
+                                                L/min</strong></span>
+                                    </div>
+                                    <div class="tank-metric-item">
+                                        <div class="tank-metric-top"><span class="tank-metric-name">Oxígeno Disuelto
+                                                (DO)</span><i class="fa-solid fa-wind text-emerald"></i></div>
+                                        <div class="tank-metric-val-row"><strong>8.4</strong> <small>mg/L</small></div>
+                                        <span class="tank-metric-range">Rango Óptimo: <strong>> 6.5 mg/L</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTÓN MINIMALISTA: VER MÁS TANQUES -->
+                    <div class="see-more-tanks-container">
+                        <button class="btn-see-more-tanks" id="btnToggleMoreTanks" onclick="toggleExtraTanks()">
+                            <div class="btn-content-left">
+                                <div class="btn-icon-circle">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                </div>
+                                <span id="txtSeeMoreTanks">Ver más tanques (+3 adicionales)</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 4. GENERADOR DE EMERGENCIA Y COMBUSTIBLE (PLAN ESTÁNDAR Y PREMIUM) -->
+                <section class="section-container plan-tier-section" id="secGenerator" style="display: none;">
+                    <div class="section-title-row">
+                        <div class="title-with-icon">
+                            <i class="fa-solid fa-charging-station text-amber"></i>
+                            <h2>Generador & Combustible</h2>
+                        </div>
+                        <span class="plan-feature-badge badge-estandar"><i class="fa-solid fa-bolt"></i> Plan Estándar</span>
+                    </div>
+
+                    <div class="tank-card generator-card">
+                        <div class="tank-card-header">
+                            <div class="tank-title-group">
+                                <div class="tank-avatar-circle gen-avatar">
+                                    <i class="fa-solid fa-gas-pump"></i>
+                                </div>
+                                <div>
+                                    <h3 class="tank-name">Generador Diésel 15 kVA</h3>
+                                    <span class="tank-capacity"><i class="fa-solid fa-shield-halved"></i> Respaldo Automático ATS (Línea Invernadero)</span>
+                                </div>
+                            </div>
+                            <span class="status-indicator-pill opt">Listo / En Espera</span>
+                        </div>
+
+                        <!-- Grilla de Métricas del Generador -->
+                        <div class="tank-sensors-grid">
+                            <!-- 1. Nivel Combustible -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Nivel Diésel</span>
+                                    <i class="fa-solid fa-gas-pump text-amber"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>78</strong>
+                                    <small>% (78 L)</small>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-fill green" style="width: 78%;"></div>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>> 35 %</strong></span>
+                            </div>
+
+                            <!-- 2. Estado Operativo -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Modo Operativo</span>
+                                    <i class="fa-solid fa-power-off text-emerald"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong style="font-size: 15px;">Automático</strong>
+                                    <small>(ATS)</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>Standby / Listo</strong></span>
+                            </div>
+
+                            <!-- 3. Batería de Arranque -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Batería Arranque</span>
+                                    <i class="fa-solid fa-car-battery text-amber"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>12.8</strong>
+                                    <small>V</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>12.4 - 13.5 V</strong></span>
+                            </div>
+
+                            <!-- 4. Autonomía Estimada -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Autonomía Est.</span>
+                                    <i class="fa-solid fa-hourglass-half text-cyan"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>18.5</strong>
+                                    <small>Horas</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>> 8.0 hrs</strong></span>
+                            </div>
+
+                            <!-- 5. Tensión Generada -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Tensión de Red</span>
+                                    <i class="fa-solid fa-plug text-indigo"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>220</strong>
+                                    <small>V (50Hz)</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>210 - 230 V</strong></span>
+                            </div>
+
+                            <!-- 6. Horómetro / Service -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Horómetro Motor</span>
+                                    <i class="fa-solid fa-wrench text-muted"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>142</strong>
+                                    <small>horas</small>
+                                </div>
+                                <span class="tank-metric-range">Service en: <strong>58 horas</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. SISTEMA SOLAR FOTOVOLTAICO Y BATERÍAS (EXCLUSIVO PLAN PREMIUM) -->
+                <section class="section-container plan-tier-section" id="secSolar" style="display: none;">
+                    <div class="section-title-row">
+                        <div class="title-with-icon">
+                            <i class="fa-solid fa-solar-panel text-violet"></i>
+                            <h2>Sistema Solar & Baterías</h2>
+                        </div>
+                        <span class="plan-feature-badge badge-premium"><i class="fa-solid fa-crown"></i> Plan Premium</span>
+                    </div>
+
+                    <div class="tank-card solar-card">
+                        <div class="tank-card-header">
+                            <div class="tank-title-group">
+                                <div class="tank-avatar-circle solar-avatar">
+                                    <i class="fa-solid fa-sun"></i>
+                                </div>
+                                <div>
+                                    <h3 class="tank-name">Banco Solar 48V & Inversor 5kW</h3>
+                                    <span class="tank-capacity"><i class="fa-solid fa-bolt-lightning"></i> 8x Paneles 550W (4.4 kWp) + Batería LiFePO4</span>
+                                </div>
+                            </div>
+                            <span class="status-indicator-pill opt">100% Autosuficiente</span>
+                        </div>
+
+                        <!-- Grilla de Métricas Solares -->
+                        <div class="tank-sensors-grid">
+                            <!-- 1. Batería Litio -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Carga Batería</span>
+                                    <i class="fa-solid fa-battery-full text-emerald"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>92</strong>
+                                    <small>% (4.8 kWh)</small>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-fill green" style="width: 92%;"></div>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>> 40 %</strong></span>
+                            </div>
+
+                            <!-- 2. Generación Solar Actual -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Potencia Solar</span>
+                                    <i class="fa-solid fa-bolt-lightning text-amber"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>4.2</strong>
+                                    <small>kW</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>1.5 - 5.5 kW</strong></span>
+                            </div>
+
+                            <!-- 3. Tensión MPPT -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Voltaje String DC</span>
+                                    <i class="fa-solid fa-gauge-high text-cyan"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>148</strong>
+                                    <small>V DC</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>120 - 180 V</strong></span>
+                            </div>
+
+                            <!-- 4. Energía Hoy -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Producción Hoy</span>
+                                    <i class="fa-solid fa-chart-line text-emerald"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>24.8</strong>
+                                    <small>kWh</small>
+                                </div>
+                                <span class="tank-metric-range">Ahorro Red: <strong>88 % Hoy</strong></span>
+                            </div>
+
+                            <!-- 5. Consumo Invernadero -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Consumo Bombas</span>
+                                    <i class="fa-solid fa-house-signal text-indigo"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>1.8</strong>
+                                    <small>kW</small>
+                                </div>
+                                <span class="tank-metric-range">Abastecido: <strong>100% Solar</strong></span>
+                            </div>
+
+                            <!-- 6. Eficiencia Inversor -->
+                            <div class="tank-metric-item">
+                                <div class="tank-metric-top">
+                                    <span class="tank-metric-name">Eficiencia Inversor</span>
+                                    <i class="fa-solid fa-microchip text-violet"></i>
+                                </div>
+                                <div class="tank-metric-val-row">
+                                    <strong>97.4</strong>
+                                    <small>%</small>
+                                </div>
+                                <span class="tank-metric-range">Rango Óptimo: <strong>> 95.0 %</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="safe-bottom-spacer"></div>
+            </main>
+
+            <!-- MENÚ INFERIOR DE ACCESO RÁPIDO (Solo Mobile) -->
+            <nav class="bottom-nav mobile-only">
+                <a href="#secAlerts" class="nav-btn active">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Alertas</span>
+                </a>
+                <a href="#secEnvironment" class="nav-btn">
+                    <i class="fa-solid fa-cloud-sun"></i>
+                    <span>Clima</span>
+                </a>
+                <a href="#secTanks" class="nav-btn">
+                    <i class="fa-solid fa-water"></i>
+                    <span>Tanques</span>
+                </a>
+                <a href="javascript:void(0)" onclick="toggleMenu()" class="nav-btn">
+                    <i class="fa-solid fa-bars"></i>
+                    <span>Menú</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MENÚ LATERAL DESLIZABLE (DRAWER HAMBURGUESA PARA MOBILE) -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="toggleMenu()"></div>
+    <aside class="side-drawer" id="sideDrawer">
+        <div class="drawer-header">
+            <div class="drawer-user">
+                <div class="drawer-avatar"><i class="fa-solid fa-user"></i></div>
+                <div>
+                    <h3 id="drawerUserName">Carlos Productor</h3>
+                    <span class="drawer-plan-tag plan-base" id="drawerPlanTag">Plan Base Activo</span>
+                </div>
+            </div>
+            <button class="drawer-close" onclick="toggleMenu()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="drawer-content">
+            <div class="drawer-section-title">Invernaderos & Lotes</div>
+            <a href="javascript:void(0)" class="drawer-item active"><i class="fa-solid fa-seedling"></i> Invernadero
+                Principal (Oberá)</a>
+            <a href="javascript:void(0)" onclick="addNewTankPrompt()" class="drawer-item"><i
+                    class="fa-solid fa-plus"></i> Configurar Nuevo Tanque</a>
+
+            <div class="drawer-section-title">Gestión de Cuenta</div>
+            <a href="javascript:void(0)" onclick="openPlanModal()" class="drawer-item"><i class="fa-solid fa-crown"></i>
+                Cambiar / Mejorar Plan</a>
+            <a href="javascript:void(0)" class="drawer-item"><i class="fa-solid fa-sliders"></i> Calibración y
+                Umbrales</a>
+            <a href="javascript:void(0)" class="drawer-item"><i class="fa-solid fa-clock-rotate-left"></i> Historial de
+                Cosechas</a>
+
+            <div class="drawer-section-title">Simulación & Calibración BD</div>
+            <div class="drawer-sim-box">
+                <p>Modifica parámetros en PostgreSQL en vivo:</p>
+                <div class="drawer-sim-buttons">
+                    <button class="btn-sim green" onclick="applyPreset('optimo')"><i class="fa-solid fa-check"></i>
+                        Todo Óptimo</button>
+                    <button class="btn-sim red" onclick="applyPreset('critico')"><i
+                            class="fa-solid fa-triangle-exclamation"></i> Alerta Crítica</button>
+                </div>
+                <button class="btn-open-calib-modal" onclick="openCalibrationModal()"><i class="fa-solid fa-sliders"></i> Abrir Panel de Control BD</button>
+            </div>
+
+            <div class="drawer-footer">
+                <p>HydroGuard OS v1.2 · 2026</p>
+                <p class="drawer-support"><i class="fa-solid fa-headset"></i> Soporte a Productores</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- BOTÓN FLOTANTE RÁPIDO PARA ABRIR EL PANEL DE CONTROL / BD -->
+    <button class="btn-floating-sim" id="btnFloatingSim" onclick="openCalibrationModal()" title="Modificar Parámetros y Probar Base de Datos">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Probar Parámetros (BD)</span>
+    </button>
+
+    <!-- MODAL DE CALIBRACIÓN Y MODIFICACIÓN DE PARÁMETROS EN VIVO EN POSTGRESQL -->
+    <div class="modal-overlay" id="calibrationModalOverlay" onclick="closeCalibrationModal(event)">
+        <div class="calibration-modal-card" onclick="event.stopPropagation()">
+            <div class="calib-modal-header">
+                <div class="calib-header-title">
+                    <div class="calib-icon-box"><i class="fa-solid fa-database text-emerald"></i></div>
+                    <div>
+                        <h3>Panel de Control & Base de Datos</h3>
+                        <p>Modifica valores en vivo en PostgreSQL y prueba las alertas</p>
+                    </div>
+                </div>
+                <button class="btn-close-modal" onclick="closeCalibrationModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="calib-modal-body">
+                <!-- Presets Rápidos -->
+                <div class="calib-section-title">Escenarios de Prueba Rápidos:</div>
+                <div class="presets-grid">
+                    <button class="btn-preset red" onclick="applyPreset('critico')">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <strong>Fallo Crítico Tanque 1</strong>
+                        <small>pH 7.2 · Agua 25%</small>
+                    </button>
+                    <button class="btn-preset amber" onclick="applyPreset('calor')">
+                        <i class="fa-solid fa-temperature-arrow-up"></i>
+                        <strong>Ola de Calor</strong>
+                        <small>Temp Aire 34°C</small>
+                    </button>
+                    <button class="btn-preset orange" onclick="applyPreset('combustible_bajo')">
+                        <i class="fa-solid fa-gas-pump"></i>
+                        <strong>Diésel Bajo</strong>
+                        <small>Combustible 12%</small>
+                    </button>
+                    <button class="btn-preset green" onclick="applyPreset('optimo')">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <strong>Restablecer Todo</strong>
+                        <small>Valores 100% Seguros</small>
+                    </button>
+                </div>
+
+                <!-- Sliders Interactivos -->
+                <div class="calib-section-title" style="margin-top: 18px;">Ajuste Fino de Parámetros de Sensores:</div>
+                <div class="sliders-list">
+                    <!-- 1. pH Tanque 1 -->
+                    <div class="slider-control-card">
+                        <div class="slider-top">
+                            <span class="slider-label"><i class="fa-solid fa-vial text-cyan"></i> pH Tanque Principal #1:</span>
+                            <span class="slider-val-badge" id="lblSliderPH">7.2 pH</span>
+                        </div>
+                        <input type="range" min="4.0" max="9.0" step="0.1" value="7.2" class="param-slider" id="sliderPH" oninput="onSliderChange('TANK_1_PH', this.value, 'lblSliderPH', ' pH')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>5.5 - 6.5 pH</strong> | Crítico: <strong>< 5.0 o > 7.0</strong></div>
+                    </div>
+
+                    <!-- 2. Nivel de Agua Tanque 1 -->
+                    <div class="slider-control-card">
+                        <div class="slider-top">
+                            <span class="slider-label"><i class="fa-solid fa-water-ladder text-emerald"></i> Nivel de Agua Tanque #1:</span>
+                            <span class="slider-val-badge" id="lblSliderLevel">25 %</span>
+                        </div>
+                        <input type="range" min="10" max="100" step="1" value="25" class="param-slider" id="sliderLevel" oninput="onSliderChange('TANK_1_WATER_LEVEL', this.value, 'lblSliderLevel', ' %')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>> 35 %</strong> | Crítico: <strong>< 28 %</strong></div>
+                    </div>
+
+                    <!-- 3. Temperatura del Aire -->
+                    <div class="slider-control-card">
+                        <div class="slider-top">
+                            <span class="slider-label"><i class="fa-solid fa-temperature-high text-amber"></i> Temp. Aire Invernadero:</span>
+                            <span class="slider-val-badge" id="lblSliderTempAir">24.5 °C</span>
+                        </div>
+                        <input type="range" min="10" max="42" step="0.5" value="24.5" class="param-slider" id="sliderTempAir" oninput="onSliderChange('ENV_TEMP_AIR', this.value, 'lblSliderTempAir', ' °C')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>18.0 - 28.0 °C</strong> | Crítico: <strong>> 35.0 °C</strong></div>
+                    </div>
+
+                    <!-- 4. Nivel Diésel Generador -->
+                    <div class="slider-control-card" id="calibRowGen">
+                        <div class="slider-top">
+                            <span class="slider-label"><i class="fa-solid fa-gas-pump text-amber"></i> Diésel Generador (Plan Estándar/Premium):</span>
+                            <span class="slider-val-badge" id="lblSliderFuel">78 %</span>
+                        </div>
+                        <input type="range" min="5" max="100" step="1" value="78" class="param-slider" id="sliderFuel" oninput="onSliderChange('GEN_FUEL', this.value, 'lblSliderFuel', ' %')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>> 35 %</strong> | Crítico: <strong>< 15 %</strong></div>
+                    </div>
+
+                    <!-- 5. Batería Solar -->
+                    <div class="slider-control-card" id="calibRowSolar">
+                        <div class="slider-top">
+                            <span class="slider-label"><i class="fa-solid fa-solar-panel text-violet"></i> Carga Batería Solar (Plan Premium):</span>
+                            <span class="slider-val-badge" id="lblSliderSolarBat">92 %</span>
+                        </div>
+                        <input type="range" min="10" max="100" step="1" value="92" class="param-slider" id="sliderSolarBat" oninput="onSliderChange('SOLAR_BATTERY_PCT', this.value, 'lblSliderSolarBat', ' %')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>> 40 %</strong> | Crítico: <strong>< 20 %</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calib-modal-footer">
+                <div class="db-sync-status"><i class="fa-solid fa-circle-check text-emerald"></i> Conectado a PostgreSQL en vivo</div>
+                <button class="btn-calib-done" onclick="closeCalibrationModal()">Cerrar y Ver Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Comportamiento -->
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
