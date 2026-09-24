@@ -7,11 +7,10 @@ let currentPlanIndex = 0;
 let sliderDebounceTimer = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("HydroGuard cargado. Conectando a PostgreSQL...");
+    console.log("HydroGuard Dashboard cargado. Conectando a PostgreSQL...");
     fetchLiveState();
 });
 
-// Obtener Plan Actual
 function getCurrentTier() {
     return PLAN_TIERS[currentPlanIndex];
 }
@@ -60,7 +59,6 @@ function applyPlan(plan) {
             drawerTag.className = 'drawer-plan-tag plan-base';
         }
 
-        // Ocultar módulos no contratados
         if (secGen) secGen.style.display = 'none';
         if (secSolar) secSolar.style.display = 'none';
         if (sidebarLinkGen) sidebarLinkGen.style.display = 'none';
@@ -84,7 +82,6 @@ function applyPlan(plan) {
             drawerTag.className = 'drawer-plan-tag plan-estandar';
         }
 
-        // Mostrar Generador y ocultar Solar
         if (secGen) secGen.style.display = 'flex';
         if (secSolar) secSolar.style.display = 'none';
         if (sidebarLinkGen) sidebarLinkGen.style.display = 'flex';
@@ -108,7 +105,6 @@ function applyPlan(plan) {
             drawerTag.className = 'drawer-plan-tag plan-premium';
         }
 
-        // Mostrar Generador y Solar
         if (secGen) secGen.style.display = 'flex';
         if (secSolar) secSolar.style.display = 'flex';
         if (sidebarLinkGen) sidebarLinkGen.style.display = 'flex';
@@ -120,7 +116,6 @@ function applyPlan(plan) {
         showToast("👑 <strong>Plan Premium Activo:</strong> Sistema Solar & Baterías desbloqueado.");
     }
 
-    // Sincronizar lecturas de la base de datos para este plan
     fetchLiveState();
 }
 
@@ -145,107 +140,278 @@ function updateUIFromData(data) {
 
     const s = data.sensors;
 
-    // 1. Tanque Principal #1 (pH)
-    if (s.TANK_1_PH) {
-        const phVal = s.TANK_1_PH.current_value;
-        const valPH1 = document.getElementById('valPH1');
-        const rangePH1 = document.getElementById('rangePH1');
-        const iconPH1 = document.getElementById('iconPH1');
-        const boxPH1 = document.getElementById('metricBoxPH1');
+    // Helper para actualizar estado de un item métrico
+    function applyMetricStatus(boxId, iconId, valId, rangeId, status, safeMin, safeMax, unit) {
+        const box = document.getElementById(boxId);
+        const icon = document.getElementById(iconId);
+        const val = document.getElementById(valId);
+        const range = document.getElementById(rangeId);
 
-        if (valPH1) {
-            valPH1.textContent = phVal.toFixed(1);
-            valPH1.className = s.TANK_1_PH.status === 'CRITICAL' ? 'text-rose' : (s.TANK_1_PH.status === 'WARNING' ? 'text-amber' : '');
+        if (box) {
+            box.classList.remove('critical-metric', 'warning-metric');
+            if (status === 'CRITICAL') box.classList.add('critical-metric');
+            else if (status === 'WARNING') box.classList.add('warning-metric');
         }
-        if (rangePH1) {
-            if (s.TANK_1_PH.status === 'CRITICAL') {
-                rangePH1.innerHTML = `Rango: <strong>Fuera (${s.TANK_1_PH.min_safe} - ${s.TANK_1_PH.max_safe})</strong>`;
-                rangePH1.className = 'tank-metric-range text-rose';
+
+        if (val) {
+            val.classList.remove('text-rose', 'text-amber');
+            if (status === 'CRITICAL') val.classList.add('text-rose');
+            else if (status === 'WARNING') val.classList.add('text-amber');
+        }
+
+        if (icon) {
+            icon.classList.remove('text-rose', 'text-amber');
+            if (status === 'CRITICAL') icon.classList.add('text-rose');
+            else if (status === 'WARNING') icon.classList.add('text-amber');
+        }
+
+        if (range) {
+            range.classList.remove('text-rose', 'text-amber');
+            if (status === 'CRITICAL') {
+                range.classList.add('text-rose');
+                range.innerHTML = `Rango: <strong>Fuera (${safeMin !== null ? safeMin : ''} - ${safeMax !== null ? safeMax : ''} ${unit})</strong>`;
+            } else if (status === 'WARNING') {
+                range.classList.add('text-amber');
+                range.innerHTML = `Rango: <strong>Atención (${safeMin !== null ? safeMin : ''} - ${safeMax !== null ? safeMax : ''} ${unit})</strong>`;
             } else {
-                rangePH1.innerHTML = `Rango Óptimo: <strong>${s.TANK_1_PH.min_safe} - ${s.TANK_1_PH.max_safe}</strong>`;
-                rangePH1.className = 'tank-metric-range';
+                range.innerHTML = `Rango Óptimo: <strong>${safeMin !== null ? safeMin : ''} - ${safeMax !== null ? safeMax : ''} ${unit}</strong>`;
             }
         }
-        if (iconPH1) {
-            iconPH1.className = s.TANK_1_PH.status === 'CRITICAL' ? 'fa-solid fa-vial text-rose' : 'fa-solid fa-vial text-cyan';
-        }
-        if (boxPH1) {
-            if (s.TANK_1_PH.status === 'CRITICAL') boxPH1.classList.add('critical-metric');
-            else boxPH1.classList.remove('critical-metric');
-        }
+    }
 
-        // Sincronizar slider de calibración
+    // ==========================================
+    // A. TANQUE PRINCIPAL #1
+    // ==========================================
+    let isTank1Crit = false;
+    let isTank1Warn = false;
+
+    // 1. pH
+    if (s.TANK_1_PH) {
+        const item = s.TANK_1_PH;
+        const valPH1 = document.getElementById('valPH1');
+        if (valPH1) valPH1.textContent = item.current_value.toFixed(1);
+        applyMetricStatus('metricBoxPH1', 'iconPH1', 'valPH1', 'rangePH1', item.status, item.min_safe, item.max_safe, 'pH');
+        if (item.status === 'CRITICAL') isTank1Crit = true;
+        if (item.status === 'WARNING') isTank1Warn = true;
+
         const sliderPH = document.getElementById('sliderPH');
         const lblSliderPH = document.getElementById('lblSliderPH');
-        if (sliderPH && document.activeElement !== sliderPH) sliderPH.value = phVal;
-        if (lblSliderPH) lblSliderPH.textContent = `${phVal.toFixed(1)} pH`;
+        if (sliderPH && document.activeElement !== sliderPH) sliderPH.value = item.current_value;
+        if (lblSliderPH) lblSliderPH.textContent = `${item.current_value.toFixed(1)} pH`;
     }
 
-    // 2. Tanque Principal #1 (Nivel de Agua)
+    // 2. Nivel de Agua
     if (s.TANK_1_WATER_LEVEL) {
-        const lvlVal = s.TANK_1_WATER_LEVEL.current_value;
+        const item = s.TANK_1_WATER_LEVEL;
         const valLvl1 = document.getElementById('valLevel1');
         const lblLiters1 = document.getElementById('lblLiters1');
-        const rangeLvl1 = document.getElementById('rangeLevel1');
-        const iconLvl1 = document.getElementById('iconLevel1');
-        const boxLvl1 = document.getElementById('metricBoxLevel1');
         const fillLvl1 = document.getElementById('progressFillLevel1');
 
-        if (valLvl1) {
-            valLvl1.textContent = Math.round(lvlVal);
-            valLvl1.className = s.TANK_1_WATER_LEVEL.status === 'CRITICAL' ? 'text-rose' : (s.TANK_1_WATER_LEVEL.status === 'WARNING' ? 'text-amber' : '');
-        }
-        if (lblLiters1) lblLiters1.textContent = `% (${Math.round(lvlVal * 10)} L)`;
-        if (rangeLvl1) {
-            if (s.TANK_1_WATER_LEVEL.status === 'CRITICAL') {
-                rangeLvl1.innerHTML = `Rango: <strong>Bajo (> ${s.TANK_1_WATER_LEVEL.min_safe} %)</strong>`;
-                rangeLvl1.className = 'tank-metric-range text-rose';
-            } else {
-                rangeLvl1.innerHTML = `Rango Óptimo: <strong>> ${s.TANK_1_WATER_LEVEL.min_safe} %</strong>`;
-                rangeLvl1.className = 'tank-metric-range';
-            }
-        }
-        if (iconLvl1) {
-            iconLvl1.className = s.TANK_1_WATER_LEVEL.status === 'CRITICAL' ? 'fa-solid fa-water-ladder text-rose' : 'fa-solid fa-water-ladder text-emerald';
-        }
-        if (boxLvl1) {
-            if (s.TANK_1_WATER_LEVEL.status === 'CRITICAL') boxLvl1.classList.add('critical-metric');
-            else boxLvl1.classList.remove('critical-metric');
-        }
+        if (valLvl1) valLvl1.textContent = Math.round(item.current_value);
+        if (lblLiters1) lblLiters1.textContent = `% (${Math.round(item.current_value * 10)} L)`;
         if (fillLvl1) {
-            fillLvl1.style.width = `${lvlVal}%`;
-            fillLvl1.className = s.TANK_1_WATER_LEVEL.status === 'CRITICAL' ? 'progress-fill red' : 'progress-fill green';
+            fillLvl1.style.width = `${Math.min(100, Math.max(0, item.current_value))}%`;
+            fillLvl1.className = item.status === 'CRITICAL' ? 'progress-fill red' : (item.status === 'WARNING' ? 'progress-fill red' : 'progress-fill green');
         }
 
-        // Sincronizar slider
+        applyMetricStatus('metricBoxLevel1', 'iconLevel1', 'valLevel1', 'rangeLevel1', item.status, `> ${item.min_safe}`, '', '%');
+        if (item.status === 'CRITICAL') isTank1Crit = true;
+        if (item.status === 'WARNING') isTank1Warn = true;
+
         const sliderLevel = document.getElementById('sliderLevel');
         const lblSliderLevel = document.getElementById('lblSliderLevel');
-        if (sliderLevel && document.activeElement !== sliderLevel) sliderLevel.value = lvlVal;
-        if (lblSliderLevel) lblSliderLevel.textContent = `${Math.round(lvlVal)} %`;
+        if (sliderLevel && document.activeElement !== sliderLevel) sliderLevel.value = item.current_value;
+        if (lblSliderLevel) lblSliderLevel.textContent = `${Math.round(item.current_value)} %`;
     }
 
-    // Cabecera de la Tarjeta del Tanque #1
+    // 3. EC Nutrientes
+    if (s.TANK_1_EC) {
+        const item = s.TANK_1_EC;
+        const valEC1 = document.getElementById('valEC1');
+        if (valEC1) valEC1.textContent = item.current_value.toFixed(1);
+        applyMetricStatus('metricBoxEC1', 'iconEC1', 'valEC1', 'rangeEC1', item.status, item.min_safe, item.max_safe, 'mS/cm');
+        if (item.status === 'CRITICAL') isTank1Crit = true;
+    }
+
+    // 4. Temp Líquido
+    if (s.TANK_1_TEMP_LIQUID) {
+        const item = s.TANK_1_TEMP_LIQUID;
+        const valTemp1 = document.getElementById('valTemp1');
+        if (valTemp1) valTemp1.textContent = item.current_value.toFixed(1);
+        applyMetricStatus('metricBoxTemp1', 'iconTemp1', 'valTemp1', 'rangeTemp1', item.status, item.min_safe, item.max_safe, '°C');
+        if (item.status === 'CRITICAL') isTank1Crit = true;
+    }
+
+    // 5. Caudal
+    if (s.TANK_1_FLOW_RATE) {
+        const item = s.TANK_1_FLOW_RATE;
+        const valFlow1 = document.getElementById('valFlow1');
+        if (valFlow1) valFlow1.textContent = item.current_value.toFixed(1);
+        applyMetricStatus('metricBoxFlow1', 'iconFlow1', 'valFlow1', 'rangeFlow1', item.status, item.min_safe, item.max_safe, 'L/min');
+    }
+
+    // 6. Oxígeno DO
+    if (s.TANK_1_OXYGEN_DO) {
+        const item = s.TANK_1_OXYGEN_DO;
+        const valOxy1 = document.getElementById('valOxy1');
+        if (valOxy1) valOxy1.textContent = item.current_value.toFixed(1);
+        applyMetricStatus('metricBoxOxy1', 'iconOxy1', 'valOxy1', 'rangeOxy1', item.status, `> ${item.min_safe}`, '', 'mg/L');
+    }
+
+    // Cabecera Tarjeta Tanque 1
     const tankCard1 = document.getElementById('tankCard1');
     const tankAvatar1 = document.getElementById('tankAvatar1');
     const tankPill1 = document.getElementById('tankStatusPill1');
-    const isTank1Crit = (s.TANK_1_PH && s.TANK_1_PH.status === 'CRITICAL') || (s.TANK_1_WATER_LEVEL && s.TANK_1_WATER_LEVEL.status === 'CRITICAL');
 
     if (tankCard1) {
+        tankCard1.classList.remove('critical-card', 'warning-card');
         if (isTank1Crit) tankCard1.classList.add('critical-card');
-        else tankCard1.classList.remove('critical-card');
+        else if (isTank1Warn) tankCard1.classList.add('warning-card');
     }
     if (tankAvatar1) {
         tankAvatar1.className = isTank1Crit ? 'tank-avatar-circle critical-avatar' : 'tank-avatar-circle';
     }
     if (tankPill1) {
-        tankPill1.className = isTank1Crit ? 'status-indicator-pill crit' : 'status-indicator-pill opt';
-        tankPill1.textContent = isTank1Crit ? 'Atención' : 'Óptimo';
+        tankPill1.className = isTank1Crit ? 'status-indicator-pill crit' : (isTank1Warn ? 'status-indicator-pill warn' : 'status-indicator-pill opt');
+        tankPill1.textContent = isTank1Crit ? 'Atención' : (isTank1Warn ? 'Alerta' : 'Óptimo');
     }
 
-    // 3. Renderizar Alertas Activas desde PostgreSQL
+    // ==========================================
+    // B. MICROCLIMA DEL INVERNADERO
+    // ==========================================
+    let isEnvCrit = false;
+    let isEnvWarn = false;
+
+    if (s.ENV_TEMP_AIR) {
+        const item = s.ENV_TEMP_AIR;
+        const valEnvTemp = document.getElementById('valEnvTemp');
+        if (valEnvTemp) valEnvTemp.textContent = item.current_value.toFixed(1);
+        applyMetricStatus('metricBoxEnvTemp', 'iconEnvTemp', 'valEnvTemp', 'rangeEnvTemp', item.status, item.min_safe, item.max_safe, '°C');
+        if (item.status === 'CRITICAL') isEnvCrit = true;
+        if (item.status === 'WARNING') isEnvWarn = true;
+
+        const sliderTempAir = document.getElementById('sliderTempAir');
+        const lblSliderTempAir = document.getElementById('lblSliderTempAir');
+        if (sliderTempAir && document.activeElement !== sliderTempAir) sliderTempAir.value = item.current_value;
+        if (lblSliderTempAir) lblSliderTempAir.textContent = `${item.current_value.toFixed(1)} °C`;
+    }
+
+    if (s.ENV_HUMIDITY) {
+        const item = s.ENV_HUMIDITY;
+        const valEnvHum = document.getElementById('valEnvHum');
+        if (valEnvHum) valEnvHum.textContent = Math.round(item.current_value);
+        applyMetricStatus('metricBoxEnvHum', 'iconEnvHum', 'valEnvHum', 'rangeEnvHum', item.status, item.min_safe, item.max_safe, '%');
+        if (item.status === 'CRITICAL') isEnvCrit = true;
+    }
+
+    if (s.ENV_SOLAR_RAD) {
+        const item = s.ENV_SOLAR_RAD;
+        const valEnvRad = document.getElementById('valEnvRad');
+        if (valEnvRad) valEnvRad.textContent = Math.round(item.current_value);
+    }
+
+    if (s.ENV_CO2) {
+        const item = s.ENV_CO2;
+        const valEnvCO2 = document.getElementById('valEnvCO2');
+        if (valEnvCO2) valEnvCO2.textContent = Math.round(item.current_value);
+    }
+
+    if (s.ENV_AIR_FLOW) {
+        const item = s.ENV_AIR_FLOW;
+        const valEnvFlow = document.getElementById('valEnvFlow');
+        if (valEnvFlow) valEnvFlow.textContent = item.current_value.toFixed(1);
+    }
+
+    // Cabecera Microclima
+    const envCard = document.getElementById('envCard');
+    const envAvatar = document.getElementById('envAvatar');
+    const envStatusPill = document.getElementById('envStatusPill');
+    if (envCard) {
+        envCard.classList.remove('critical-card', 'warning-card');
+        if (isEnvCrit) envCard.classList.add('critical-card');
+        else if (isEnvWarn) envCard.classList.add('warning-card');
+    }
+    if (envAvatar) {
+        envAvatar.className = isEnvCrit ? 'tank-avatar-circle critical-avatar' : 'tank-avatar-circle env-avatar';
+    }
+    if (envStatusPill) {
+        envStatusPill.className = isEnvCrit ? 'status-indicator-pill crit' : (isEnvWarn ? 'status-indicator-pill warn' : 'status-indicator-pill opt');
+        envStatusPill.textContent = isEnvCrit ? 'Atención' : (isEnvWarn ? 'Alerta' : 'Óptimo');
+    }
+
+    // ==========================================
+    // C. GENERADOR & COMBUSTIBLE
+    // ==========================================
+    if (s.GEN_FUEL) {
+        const item = s.GEN_FUEL;
+        const valGenFuel = document.getElementById('valGenFuel');
+        const lblLitersGenFuel = document.getElementById('lblLitersGenFuel');
+        const fillGenFuel = document.getElementById('progressFillGenFuel');
+
+        if (valGenFuel) valGenFuel.textContent = Math.round(item.current_value);
+        if (lblLitersGenFuel) lblLitersGenFuel.textContent = `% (${Math.round(item.current_value)} L)`;
+        if (fillGenFuel) {
+            fillGenFuel.style.width = `${Math.min(100, Math.max(0, item.current_value))}%`;
+            fillGenFuel.className = item.status === 'CRITICAL' ? 'progress-fill red' : 'progress-fill green';
+        }
+        applyMetricStatus('metricBoxGenFuel', 'iconGenFuel', 'valGenFuel', 'rangeGenFuel', item.status, `> ${item.min_safe}`, '', '%');
+
+        const genCard = document.getElementById('genCard');
+        const genPill = document.getElementById('genStatusPill');
+        if (genCard) {
+            if (item.status === 'CRITICAL') genCard.classList.add('critical-card');
+            else genCard.classList.remove('critical-card');
+        }
+        if (genPill) {
+            genPill.className = item.status === 'CRITICAL' ? 'status-indicator-pill crit' : 'status-indicator-pill opt';
+            genPill.textContent = item.status === 'CRITICAL' ? 'Nivel Crítico' : 'Listo / En Espera';
+        }
+
+        const sliderFuel = document.getElementById('sliderFuel');
+        const lblSliderFuel = document.getElementById('lblSliderFuel');
+        if (sliderFuel && document.activeElement !== sliderFuel) sliderFuel.value = item.current_value;
+        if (lblSliderFuel) lblSliderFuel.textContent = `${Math.round(item.current_value)} %`;
+    }
+
+    // ==========================================
+    // D. SISTEMA SOLAR & BATERÍAS
+    // ==========================================
+    if (s.SOLAR_BATTERY_PCT) {
+        const item = s.SOLAR_BATTERY_PCT;
+        const valSolarBat = document.getElementById('valSolarBat');
+        const fillSolarBat = document.getElementById('progressFillSolarBat');
+
+        if (valSolarBat) valSolarBat.textContent = Math.round(item.current_value);
+        if (fillSolarBat) {
+            fillSolarBat.style.width = `${Math.min(100, Math.max(0, item.current_value))}%`;
+            fillSolarBat.className = item.status === 'CRITICAL' ? 'progress-fill red' : 'progress-fill green';
+        }
+        applyMetricStatus('metricBoxSolarBat', 'iconSolarBat', 'valSolarBat', 'rangeSolarBat', item.status, `> ${item.min_safe}`, '', '%');
+
+        const solarCard = document.getElementById('solarCard');
+        const solarPill = document.getElementById('solarStatusPill');
+        if (solarCard) {
+            if (item.status === 'CRITICAL') solarCard.classList.add('critical-card');
+            else solarCard.classList.remove('critical-card');
+        }
+        if (solarPill) {
+            solarPill.className = item.status === 'CRITICAL' ? 'status-indicator-pill crit' : 'status-indicator-pill opt';
+            solarPill.textContent = item.status === 'CRITICAL' ? 'Batería Crítica' : '100% Autosuficiente';
+        }
+
+        const sliderSolarBat = document.getElementById('sliderSolarBat');
+        const lblSliderSolarBat = document.getElementById('lblSliderSolarBat');
+        if (sliderSolarBat && document.activeElement !== sliderSolarBat) sliderSolarBat.value = item.current_value;
+        if (lblSliderSolarBat) lblSliderSolarBat.textContent = `${Math.round(item.current_value)} %`;
+    }
+
+    // 3. Renderizar Alertas Activas en el Centro de Alertas
     renderAlertsFeed(data.active_alerts || []);
 }
 
+// -----------------------------------------------------------------------------
+// 3. RENDERIZADO Y RESOLUCIÓN INDIVIDUAL DE ALERTAS (POSTGRESQL)
+// -----------------------------------------------------------------------------
 function renderAlertsFeed(alerts) {
     const alertsFeed = document.getElementById('alertsFeed');
     const activeCountBadge = document.getElementById('activeAlertsCount');
@@ -269,13 +435,13 @@ function renderAlertsFeed(alerts) {
                         </div>
                         <div class="alert-meta">
                             <span class="alert-category">Monitoreo en Tiempo Real</span>
-                            <h4 class="alert-item-title">Todos los sistemas óptimos</h4>
+                            <h4 class="alert-item-title">Todos los sistemas en rango óptimo</h4>
                         </div>
                     </div>
                     <span class="badge-status-pill badge-resolved">NORMAL</span>
                 </div>
                 <p class="alert-description" style="color: #15803d; font-weight: 600;">
-                    No hay alertas activas en la base de datos. Los tanques y el microclima están en rangos seguros.
+                    No hay alertas activas en PostgreSQL. La solución nutritiva y el microclima están estables.
                 </p>
             </div>
         `;
@@ -291,6 +457,7 @@ function renderAlertsFeed(alerts) {
         const badgeText = isCritical ? 'CRÍTICO' : 'ATENCIÓN';
         const icon = isCritical ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-temperature-half';
 
+        // Botón de resolución individual para CADA alerta específica
         html += `
             <div class="${cardClass}" id="alert_card_${a.id}">
                 <div class="alert-card-top">
@@ -306,8 +473,8 @@ function renderAlertsFeed(alerts) {
                     <span class="${badgeClass}">${badgeText}</span>
                 </div>
                 <p class="alert-description">${a.message}</p>
-                <button class="btn-action-suggested ${isCritical ? 'critical' : 'warning'}" onclick="resolveAction('tanque')">
-                    <span>Acción sugerida: Normalizar y dosificar parámetros</span>
+                <button class="btn-action-suggested ${isCritical ? 'critical' : 'warning'}" onclick="resolveSingleAlert('${a.id}', '${a.sensor_code}')">
+                    <span>Acción sugerida: Normalizar y resolver esta alerta</span>
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
@@ -317,8 +484,33 @@ function renderAlertsFeed(alerts) {
     alertsFeed.innerHTML = html;
 }
 
+// Resolver ÚNICAMENTE la alerta seleccionada
+async function resolveSingleAlert(alertId, sensorCode) {
+    const tier = getCurrentTier();
+    try {
+        const res = await fetch('/api/v1/simulation/resolve-alert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                alert_id: alertId,
+                sensor_code: sensorCode,
+                tier: tier
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            showToast(`✅ <strong>Alerta resuelta:</strong> ${sensorCode.replace(/_/g, ' ')} restablecido a valores seguros.`);
+            // Refrescar estado en vivo (las demás alertas permanecen intactas)
+            fetchLiveState();
+        }
+    } catch (err) {
+        console.error("Error al resolver alerta individual:", err);
+    }
+}
+
 // -----------------------------------------------------------------------------
-// 3. MODIFICACIÓN DE PARÁMETROS EN VIVO Y CALIBRACIÓN (API POSTGRESQL)
+// 4. MODIFICACIÓN DE PARÁMETROS EN VIVO Y CALIBRACIÓN (SLIDERS & PRESETS)
 // -----------------------------------------------------------------------------
 function onSliderChange(sensorCode, value, labelId, unit) {
     const lbl = document.getElementById(labelId);
@@ -348,7 +540,7 @@ function onSliderChange(sensorCode, value, labelId, unit) {
         } catch (err) {
             console.error("Error al actualizar telemetría en BD:", err);
         }
-    }, 250);
+    }, 200);
 }
 
 // Presets Rápidos
@@ -374,38 +566,8 @@ async function applyPreset(presetName) {
     }
 }
 
-// Resolver Alertas y Normalizar Parámetros en PostgreSQL
-async function resolveAction(type) {
-    const tier = getCurrentTier();
-    const btn = document.getElementById('btnActionTank1');
-    if (btn) {
-        btn.innerHTML = `<span><i class="fa-solid fa-spinner fa-spin"></i> Dosificando y sincronizando con BD...</span>`;
-        btn.disabled = true;
-    }
-
-    try {
-        const res = await fetch('/api/v1/simulation/resolve-alert', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sensor_code: 'TANK_1_PH',
-                tier: tier
-            })
-        });
-
-        if (res.ok) {
-            showToast("✅ <strong>Acción completada:</strong> Parámetros normalizados y alerta resuelta en PostgreSQL.");
-            setTimeout(() => {
-                fetchLiveState();
-            }, 400);
-        }
-    } catch (err) {
-        console.error("Error al resolver alerta en BD:", err);
-    }
-}
-
 // -----------------------------------------------------------------------------
-// 4. CONTROL DE MODALES Y MENÚS
+// 5. CONTROL DE MODALES Y MENÚS
 // -----------------------------------------------------------------------------
 function openCalibrationModal() {
     const modal = document.getElementById('calibrationModalOverlay');

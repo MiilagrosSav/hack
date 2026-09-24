@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import (
     Column, String, Boolean, DateTime, ForeignKey, Integer,
     Numeric, Text, Enum as SQLEnum, BigInteger, JSON
@@ -59,7 +59,7 @@ class Plan(Base):
     has_fuel_tracking = Column(Boolean, default=False, nullable=False)
     has_solar_monitoring = Column(Boolean, default=False, nullable=False)
     max_devices = Column(Integer, default=2, nullable=False)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     subscriptions = relationship("UserSubscription", back_populates="plan")
 
@@ -74,8 +74,8 @@ class User(Base):
     phone_number = Column(String(30), nullable=True)
     role = Column(SQLEnum(UserRoleEnum, name="user_role_enum"), default=UserRoleEnum.PRODUCER, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     subscription = relationship("UserSubscription", back_populates="user", uselist=False)
     greenhouses = relationship("Greenhouse", back_populates="user", cascade="all, delete-orphan")
@@ -89,9 +89,9 @@ class UserSubscription(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
     plan_id = Column(Integer, ForeignKey("plans.id", ondelete="RESTRICT"), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
-    start_date = Column(DateTime(timezone=True), default=datetime.utcnow)
+    start_date = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     expires_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="subscription")
     plan = relationship("Plan", back_populates="subscriptions")
@@ -106,7 +106,7 @@ class Greenhouse(Base):
     location_description = Column(Text, nullable=True)
     crop_type = Column(String(100), default="Lechuga Hidropónica / Nutrientes NFT")
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="greenhouses")
     tanks = relationship("Tank", back_populates="greenhouse", cascade="all, delete-orphan")
@@ -123,7 +123,7 @@ class Tank(Base):
     name = Column(String(100), nullable=False) # ej: "Tanque Principal #1", "Tanque Solución B"
     capacity_liters = Column(Numeric(10, 2), default=1000.0)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     greenhouse = relationship("Greenhouse", back_populates="tanks")
     sensors = relationship("Sensor", back_populates="tank", cascade="all, delete-orphan")
@@ -140,7 +140,7 @@ class Device(Base):
     firmware_version = Column(String(50), default="1.0.0")
     last_heartbeat = Column(DateTime(timezone=True), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     greenhouse = relationship("Greenhouse", back_populates="devices")
     sensors = relationship("Sensor", back_populates="device", cascade="all, delete-orphan")
@@ -178,7 +178,7 @@ class SensorThreshold(Base):
     warning_message = Column(Text, nullable=True)
     critical_message = Column(Text, nullable=True)
     is_enabled = Column(Boolean, default=True, nullable=False)
-    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     sensor = relationship("Sensor", back_populates="threshold")
 
@@ -189,7 +189,7 @@ class TelemetryReading(Base):
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     sensor_id = Column(Integer, ForeignKey("sensors.id", ondelete="CASCADE"), nullable=False, index=True)
     device_id = Column(UUID(as_uuid=True), ForeignKey("devices.id", ondelete="CASCADE"), nullable=False, index=True)
-    recorded_at = Column(DateTime(timezone=True), default=datetime.utcnow, primary_key=True, index=True)
+    recorded_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
     value = Column(Numeric(10, 3), nullable=False)
     raw_payload = Column(JSONB, nullable=True)
 
@@ -208,7 +208,7 @@ class Alert(Base):
     message = Column(Text, nullable=False)
     trigger_value = Column(Numeric(10, 3), nullable=True)
     threshold_value = Column(Numeric(10, 3), nullable=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, index=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
     acknowledged_at = Column(DateTime(timezone=True), nullable=True)
     resolved_at = Column(DateTime(timezone=True), nullable=True)
 
@@ -227,8 +227,9 @@ class Reminder(Base):
     due_date = Column(DateTime(timezone=True), nullable=False, index=True)
     status = Column(SQLEnum(ReminderStatusEnum, name="reminder_status_enum"), default=ReminderStatusEnum.PENDING, nullable=False)
     recurrence_interval_days = Column(Integer, default=0)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
     greenhouse = relationship("Greenhouse", back_populates="reminders")
     user = relationship("User", back_populates="reminders")
+

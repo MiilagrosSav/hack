@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 from app.core.database import get_db
 from app.models import (
-    User, Greenhouse, Device, Sensor, SensorThreshold,
+    Plan, User, UserSubscription, Greenhouse, Device, Sensor, SensorThreshold,
     TelemetryReading, Alert, AlertStatusEnum, AlertSeverityEnum,
     PlanTierEnum
 )
@@ -24,27 +24,37 @@ class PresetPayload(BaseModel):
 
 class ResolveAlertPayload(BaseModel):
     sensor_code: Optional[str] = Field(None, description="Código del sensor a normalizar")
-    alert_id: Optional[int] = Field(None, description="ID de la alerta a resolver")
+    alert_id: Optional[str] = Field(None, description="ID UUID de la alerta a resolver")
     tier: Optional[str] = Field("BASE", description="Nivel del plan")
 
-@router.get("/state", summary="Obtener estado consolidado de la base de datos en tiempo real")
-def get_simulation_state(tier: str = "BASE", db: Session = Depends(get_db)):
-    """Retorna todas las lecturas actuales de la BD, rangos y alertas activas."""
-    plan_tier = PlanTierEnum(tier.upper()) if tier.upper() in [e.value for e in PlanTierEnum] else PlanTierEnum.BASE
-    
-    # Buscar usuario del plan
-    user = db.query(User).filter(User.email == f"{tier.lower()}@hydroguard.io").first()
-    if not user:
-        user = db.query(User).first()
+
+def get_primary_context(db: Session, tier: Optional[str] = None):
+    """Obtiene el usuario, invernadero y dispositivo central unificado."""
+    user = db.query(User).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontraron usuarios en la BD.")
+
+    if tier:
+        plan_tier = PlanTierEnum(tier.upper()) if tier.upper() in [e.value for e in PlanTierEnum] else PlanTierEnum.BASE
+        plan_obj = db.query(Plan).filter(Plan.tier == plan_tier).first()
+        if plan_obj and user.subscription:
+            user.subscription.plan_id = plan_obj.id
+            db.commit()
 
     gh = db.query(Greenhouse).filter(Greenhouse.user_id == user.id, Greenhouse.is_active == True).first()
     if not gh:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontró invernadero.")
 
-    # Dispositivo
     device = db.query(Device).filter(Device.greenhouse_id == gh.id, Device.is_active == True).first()
+    return user, gh, device
+
+
+@router.get("/state", summary="Obtener estado consolidado de la base de datos en tiempo real")
+def get_simulation_state(tier: str = "BASE", db: Session = Depends(get_db)):
+    """Retorna todas las lecturas actuales de la BD, rangos y alertas activas."""
+    plan_tier = PlanTierEnum(tier.upper()) if tier.upper() in [e.value for e in PlanTierEnum] else PlanTierEnum.BASE
+    user, gh, device = get_primary_context(db, tier)
+
     if not device:
         return {"sensors": {}, "alerts": [], "tier": plan_tier.value}
 
@@ -55,7 +65,7 @@ def get_simulation_state(tier: str = "BASE", db: Session = Depends(get_db)):
     for s in sensors:
         latest = db.query(TelemetryReading).filter(
             TelemetryReading.sensor_id == s.id
-        ).order_by(TelemetryReading.recorded_at.desc()).first()
+        ).order_by(TelemetryReading.recorded_at.desc(), TelemetryReading.id.desc()).first()
 
         cur_val = float(latest.value) if latest else None
         
@@ -123,12 +133,7 @@ def update_reading(payload: UpdateReadingPayload, db: Session = Depends(get_db))
     """
     Inserta una nueva lectura de telemetría en la BD y evalúa las alertas con el AlertEngine.
     """
-    user = db.query(User).filter(User.email == f"{payload.tier.lower()}@hydroguard.io").first()
-    if not user:
-        user = db.query(User).first()
-    
-    gh = db.query(Greenhouse).filter(Greenhouse.user_id == user.id, Greenhouse.is_active == True).first()
-    device = db.query(Device).filter(Device.greenhouse_id == gh.id, Device.is_active == True).first()
+    user, gh, device = get_primary_context(db, payload.tier)
     
     sensor = db.query(Sensor).filter(
         Sensor.device_id == device.id,
@@ -139,7 +144,7 @@ def update_reading(payload: UpdateReadingPayload, db: Session = Depends(get_db))
     if not sensor:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Sensor '{payload.sensor_code}' no encontrado para el plan {payload.tier}."
+            detail=f"Sensor '{payload.sensor_code}' no encontrado en el invernadero."
         )
 
     # 1. Insertar Telemetría en PostgreSQL
@@ -182,12 +187,7 @@ def update_reading(payload: UpdateReadingPayload, db: Session = Depends(get_db))
 @router.post("/preset", summary="Aplicar preset de simulación completo en la base de datos")
 def set_simulation_preset(payload: PresetPayload, db: Session = Depends(get_db)):
     """Aplica configuraciones rápidas de telemetría para pruebas."""
-    user = db.query(User).filter(User.email == f"{payload.tier.lower()}@hydroguard.io").first()
-    if not user:
-        user = db.query(User).first()
-    
-    gh = db.query(Greenhouse).filter(Greenhouse.user_id == user.id, Greenhouse.is_active == True).first()
-    device = db.query(Device).filter(Device.greenhouse_id == gh.id, Device.is_active == True).first()
+    user, gh, device = get_primary_context(db, payload.tier)
 
     readings_map = {}
     if payload.preset == "critico":
@@ -229,35 +229,82 @@ def set_simulation_preset(payload: PresetPayload, db: Session = Depends(get_db))
     total_active = db.query(Alert).filter(Alert.greenhouse_id == gh.id, Alert.status == AlertStatusEnum.ACTIVE).count()
     return {"status": "success", "preset_applied": payload.preset, "total_active_alerts": total_active}
 
-@router.post("/resolve-alert", summary="Resolver alerta y restablecer parámetros en PostgreSQL")
+@router.post("/resolve-alert", summary="Resolver alerta y restablecer parámetro individual en PostgreSQL")
 def resolve_alert(payload: ResolveAlertPayload, db: Session = Depends(get_db)):
-    """Marca la alerta como RESUELTA en la base de datos y restablece el sensor a valores óptimos."""
-    user = db.query(User).filter(User.email == f"{payload.tier.lower()}@hydroguard.io").first()
-    if not user:
-        user = db.query(User).first()
-    
-    gh = db.query(Greenhouse).filter(Greenhouse.user_id == user.id, Greenhouse.is_active == True).first()
-    device = db.query(Device).filter(Device.greenhouse_id == gh.id, Device.is_active == True).first()
+    """Marca ÚNICAMENTE la alerta seleccionada como RESUELTA en la base de datos y restablece su sensor a valores óptimos."""
+    user, gh, device = get_primary_context(db, payload.tier)
 
-    # Si se pasó sensor_code o alert_id
+    def get_optimal_value(code: str) -> float:
+        if "PH" in code: return 6.2
+        if "LEVEL" in code or "WATER" in code: return 85.0
+        if "FUEL" in code: return 78.0
+        if "SOLAR" in code or "BATTERY" in code: return 92.0
+        if "TEMP" in code: return 22.0
+        if "CO2" in code: return 720.0
+        if "FLOW" in code: return 14.0
+        return 50.0
+
+    target_sensors = set()
+    resolved_count = 0
+
+    # 1. Resolución por ID de Alerta
+    if payload.alert_id:
+        try:
+            import uuid
+            alert_uuid = uuid.UUID(str(payload.alert_id))
+            alert = db.query(Alert).filter(Alert.id == alert_uuid).first()
+        except Exception:
+            alert = db.query(Alert).filter(Alert.id == payload.alert_id).first()
+
+        if alert:
+            alert.status = AlertStatusEnum.RESOLVED
+            alert.resolved_at = datetime.now(timezone.utc)
+            db.add(alert)
+            resolved_count += 1
+            if alert.sensor:
+                target_sensors.add(alert.sensor)
+
+    # 2. Resolución por Código de Sensor
     if payload.sensor_code:
-        sensors = db.query(Sensor).filter(Sensor.device_id == device.id, Sensor.sensor_code.in_([payload.sensor_code, "TANK_1_PH", "TANK_1_WATER_LEVEL"])).all()
-    else:
-        sensors = db.query(Sensor).filter(Sensor.device_id == device.id, Sensor.sensor_code.in_(["TANK_1_PH", "TANK_1_WATER_LEVEL"])).all()
+        sensor = db.query(Sensor).filter(Sensor.device_id == device.id, Sensor.sensor_code == payload.sensor_code).first()
+        if sensor:
+            active_alerts = db.query(Alert).filter(Alert.sensor_id == sensor.id, Alert.status == AlertStatusEnum.ACTIVE).all()
+            for a in active_alerts:
+                if a.status != AlertStatusEnum.RESOLVED:
+                    a.status = AlertStatusEnum.RESOLVED
+                    a.resolved_at = datetime.now(timezone.utc)
+                    db.add(a)
+                    resolved_count += 1
+            target_sensors.add(sensor)
 
-    for s in sensors:
-        # Resolver alertas activas
-        active_alerts = db.query(Alert).filter(Alert.sensor_id == s.id, Alert.status == AlertStatusEnum.ACTIVE).all()
+    # 3. Si no se especificó nada, resolver todas las alertas activas
+    if not payload.alert_id and not payload.sensor_code:
+        active_alerts = db.query(Alert).filter(Alert.greenhouse_id == gh.id, Alert.status == AlertStatusEnum.ACTIVE).all()
         for a in active_alerts:
             a.status = AlertStatusEnum.RESOLVED
             a.resolved_at = datetime.now(timezone.utc)
             db.add(a)
+            resolved_count += 1
+            if a.sensor:
+                target_sensors.add(a.sensor)
 
-        # Restablecer valor óptimo
-        opt_val = 6.2 if "PH" in s.sensor_code else (85.0 if "LEVEL" in s.sensor_code else 22.0)
-        db.add(TelemetryReading(sensor_id=s.id, device_id=device.id, value=opt_val, recorded_at=datetime.now(timezone.utc)))
+    # Registrar nuevas lecturas óptimas en PostgreSQL para los sensores normalizados
+    for s in target_sensors:
+        opt_val = get_optimal_value(s.sensor_code)
+        db.add(TelemetryReading(
+            sensor_id=s.id,
+            device_id=device.id,
+            value=opt_val,
+            recorded_at=datetime.now(timezone.utc)
+        ))
 
     db.commit()
 
     total_active = db.query(Alert).filter(Alert.greenhouse_id == gh.id, Alert.status == AlertStatusEnum.ACTIVE).count()
-    return {"status": "resolved", "message": "Parámetros restablecidos y alertas resueltas en BD.", "total_active_alerts": total_active}
+    return {
+        "status": "resolved",
+        "resolved_alerts_count": resolved_count,
+        "message": f"{resolved_count} alerta(s) resuelta(s) y parámetro restablecido en PostgreSQL.",
+        "total_active_alerts": total_active
+    }
+

@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 from app.models import (
     Sensor, SensorThreshold, Alert, Greenhouse,
     AlertSeverityEnum, AlertStatusEnum
@@ -59,29 +59,30 @@ class AlertEngine:
 
         # Si el valor está dentro de los rangos seguros, resolvemos alertas activas previas
         if severity is None:
-            active_alert = db.query(Alert).filter(
+            active_alerts = db.query(Alert).filter(
                 Alert.sensor_id == sensor.id,
                 Alert.greenhouse_id == greenhouse.id,
                 Alert.status == AlertStatusEnum.ACTIVE
-            ).first()
-            if active_alert:
+            ).all()
+            for active_alert in active_alerts:
                 active_alert.status = AlertStatusEnum.RESOLVED
-                active_alert.resolved_at = datetime.utcnow()
+                active_alert.resolved_at = datetime.now(timezone.utc)
                 db.add(active_alert)
                 logger.info(f"Alerta resuelta automáticamente para {sensor.name} en Invernadero {greenhouse.name}")
             return None
 
-        # Si hay una anomalía detectada, verificamos si ya existe una alerta activa para evitar saturación (spam)
+        # Si hay una anomalía detectada, verificamos si ya existe una alerta activa para evitar duplicados
         existing_alert = db.query(Alert).filter(
             Alert.sensor_id == sensor.id,
             Alert.greenhouse_id == greenhouse.id,
-            Alert.status == AlertStatusEnum.ACTIVE,
-            Alert.severity == severity
+            Alert.status == AlertStatusEnum.ACTIVE
         ).first()
 
         if existing_alert:
-            # Actualizamos el valor disparador reciente
+            existing_alert.severity = severity
+            existing_alert.message = message
             existing_alert.trigger_value = val
+            existing_alert.threshold_value = threshold_val
             db.add(existing_alert)
             return existing_alert
 
@@ -95,8 +96,9 @@ class AlertEngine:
             message=message,
             trigger_value=val,
             threshold_value=threshold_val,
-            created_at=datetime.utcnow()
+            created_at=datetime.now(timezone.utc)
         )
         db.add(new_alert)
         logger.warning(f"[ALERTA GENERADA] [{severity.value}] {new_alert.title}: {new_alert.message}")
         return new_alert
+

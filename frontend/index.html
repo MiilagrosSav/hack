@@ -198,10 +198,10 @@
                     </div>
 
                     <!-- Tarjeta de Microclima con la misma estructura y diseño de los tanques -->
-                    <div class="tank-card environment-card">
+                    <div class="tank-card environment-card" id="envCard">
                         <div class="tank-card-header">
                             <div class="tank-title-group">
-                                <div class="tank-avatar-circle env-avatar">
+                                <div class="tank-avatar-circle env-avatar" id="envAvatar">
                                     <i class="fa-solid fa-seedling"></i>
                                 </div>
                                 <div>
@@ -210,74 +210,74 @@
                                         de Nave Hidropónica NFT</span>
                                 </div>
                             </div>
-                            <span class="status-indicator-pill opt">Óptimo</span>
+                            <span class="status-indicator-pill opt" id="envStatusPill">Óptimo</span>
                         </div>
 
                         <!-- Grilla de Sensores del Invernadero estructurada como los tanques -->
                         <div class="tank-sensors-grid">
                             <!-- 1. Temp Aire -->
-                            <div class="tank-metric-item">
+                            <div class="tank-metric-item" id="metricBoxEnvTemp">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Temp. del Aire</span>
-                                    <i class="fa-solid fa-temperature-high text-amber"></i>
+                                    <i class="fa-solid fa-temperature-high text-amber" id="iconEnvTemp"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>24.5</strong>
+                                    <strong id="valEnvTemp">24.5</strong>
                                     <small>°C</small>
                                 </div>
-                                <span class="tank-metric-range">Rango Óptimo: <strong>18.0 - 28.0 °C</strong></span>
+                                <span class="tank-metric-range" id="rangeEnvTemp">Rango Óptimo: <strong>18.0 - 28.0 °C</strong></span>
                             </div>
 
                             <!-- 2. Humedad Aire -->
-                            <div class="tank-metric-item">
+                            <div class="tank-metric-item" id="metricBoxEnvHum">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Humedad Relativa</span>
-                                    <i class="fa-solid fa-droplet text-cyan"></i>
+                                    <i class="fa-solid fa-droplet text-cyan" id="iconEnvHum"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>68</strong>
+                                    <strong id="valEnvHum">68</strong>
                                     <small>%</small>
                                 </div>
-                                <span class="tank-metric-range">Rango Óptimo: <strong>55 - 80 %</strong></span>
+                                <span class="tank-metric-range" id="rangeEnvHum">Rango Óptimo: <strong>55 - 80 %</strong></span>
                             </div>
 
                             <!-- 3. Radiación Solar -->
-                            <div class="tank-metric-item">
+                            <div class="tank-metric-item" id="metricBoxEnvRad">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Radiación Solar</span>
-                                    <i class="fa-solid fa-sun text-amber"></i>
+                                    <i class="fa-solid fa-sun text-amber" id="iconEnvRad"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>650</strong>
+                                    <strong id="valEnvRad">650</strong>
                                     <small>W/m²</small>
                                 </div>
-                                <span class="tank-metric-range">Rango Óptimo: <strong>200 - 900 W/m²</strong></span>
+                                <span class="tank-metric-range" id="rangeEnvRad">Rango Óptimo: <strong>200 - 900 W/m²</strong></span>
                             </div>
 
                             <!-- 4. Sensor CO2 -->
-                            <div class="tank-metric-item">
+                            <div class="tank-metric-item" id="metricBoxEnvCO2">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Dióxido CO₂</span>
-                                    <i class="fa-solid fa-smog text-indigo"></i>
+                                    <i class="fa-solid fa-smog text-indigo" id="iconEnvCO2"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>720</strong>
+                                    <strong id="valEnvCO2">720</strong>
                                     <small>ppm</small>
                                 </div>
-                                <span class="tank-metric-range">Rango Óptimo: <strong>400 - 1000 ppm</strong></span>
+                                <span class="tank-metric-range" id="rangeEnvCO2">Rango Óptimo: <strong>400 - 1000 ppm</strong></span>
                             </div>
 
                             <!-- 5. Flujo de Aire -->
-                            <div class="tank-metric-item wide-span">
+                            <div class="tank-metric-item wide-span" id="metricBoxEnvFlow">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Flujo de Aire (Ventilación)</span>
-                                    <i class="fa-solid fa-wind text-emerald"></i>
+                                    <i class="fa-solid fa-wind text-emerald" id="iconEnvFlow"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>1.4</strong>
+                                    <strong id="valEnvFlow">1.4</strong>
                                     <small>m/s</small>
                                 </div>
-                                <span class="tank-metric-range">Rango Óptimo: <strong>0.5 - 3.0 m/s</strong></span>
+                                <span class="tank-metric-range" id="rangeEnvFlow">Rango Óptimo: <strong>0.5 - 3.0 m/s</strong></span>
                             </div>
                         </div>
                     </div>
@@ -293,7 +293,7 @@
                         <div class="tanks-header-right">
                             <span class="tanks-count-badge" id="tanksCountBadge">4 Tanques</span>
                             <button class="btn-add-tank-inline" onclick="addNewTankPrompt()"><i
-                                    class="fa-solid fa-plus"></i> Agregar Tanque</button>
+                                     class="fa-solid fa-plus"></i> Agregar Tanque</button>
                         </div>
                     </div>
 
@@ -336,13 +336,13 @@
                                 <div class="tank-metric-item" id="metricBoxEC1">
                                     <div class="tank-metric-top">
                                         <span class="tank-metric-name">Conductividad (EC)</span>
-                                        <i class="fa-solid fa-flask text-indigo"></i>
+                                        <i class="fa-solid fa-flask text-indigo" id="iconEC1"></i>
                                     </div>
                                     <div class="tank-metric-val-row">
                                         <strong id="valEC1">1.6</strong>
                                         <small>mS/cm</small>
                                     </div>
-                                    <span class="tank-metric-range">Rango Óptimo: <strong>1.2 - 2.0</strong></span>
+                                    <span class="tank-metric-range" id="rangeEC1">Rango Óptimo: <strong>1.2 - 2.0</strong></span>
                                 </div>
 
                                 <!-- 3. Cantidad / Nivel de Agua (En Rojo / 25%) -->
@@ -364,43 +364,43 @@
                                 </div>
 
                                 <!-- 4. Temperatura del Líquido -->
-                                <div class="tank-metric-item">
+                                <div class="tank-metric-item" id="metricBoxTemp1">
                                     <div class="tank-metric-top">
                                         <span class="tank-metric-name">Temp. Líquido</span>
-                                        <i class="fa-solid fa-temperature-half text-amber"></i>
+                                        <i class="fa-solid fa-temperature-half text-amber" id="iconTemp1"></i>
                                     </div>
                                     <div class="tank-metric-val-row">
-                                        <strong>21.5</strong>
+                                        <strong id="valTemp1">21.5</strong>
                                         <small>°C</small>
                                     </div>
-                                    <span class="tank-metric-range">Rango Óptimo: <strong>18.0 - 24.0 °C</strong></span>
+                                    <span class="tank-metric-range" id="rangeTemp1">Rango Óptimo: <strong>18.0 - 24.0 °C</strong></span>
                                 </div>
 
                                 <!-- 5. Caudal -->
-                                <div class="tank-metric-item">
+                                <div class="tank-metric-item" id="metricBoxFlow1">
                                     <div class="tank-metric-top">
                                         <span class="tank-metric-name">Caudal Bomba</span>
-                                        <i class="fa-solid fa-faucet-drip text-cyan"></i>
+                                        <i class="fa-solid fa-faucet-drip text-cyan" id="iconFlow1"></i>
                                     </div>
                                     <div class="tank-metric-val-row">
-                                        <strong>14.2</strong>
+                                        <strong id="valFlow1">14.2</strong>
                                         <small>L/min</small>
                                     </div>
-                                    <span class="tank-metric-range">Rango Óptimo: <strong>10.0 - 18.0
+                                    <span class="tank-metric-range" id="rangeFlow1">Rango Óptimo: <strong>10.0 - 18.0
                                             L/min</strong></span>
                                 </div>
 
                                 <!-- 6. Aireación / Oxigenación -->
-                                <div class="tank-metric-item">
+                                <div class="tank-metric-item" id="metricBoxOxy1">
                                     <div class="tank-metric-top">
                                         <span class="tank-metric-name">Oxígeno Disuelto (DO)</span>
-                                        <i class="fa-solid fa-wind text-emerald"></i>
+                                        <i class="fa-solid fa-wind text-emerald" id="iconOxy1"></i>
                                     </div>
                                     <div class="tank-metric-val-row">
-                                        <strong>7.8</strong>
+                                        <strong id="valOxy1">7.8</strong>
                                         <small>mg/L</small>
                                     </div>
-                                    <span class="tank-metric-range">Rango Óptimo: <strong>> 6.5 mg/L</strong></span>
+                                    <span class="tank-metric-range" id="rangeOxy1">Rango Óptimo: <strong>> 6.5 mg/L</strong></span>
                                 </div>
                             </div>
                         </div>
@@ -624,10 +624,10 @@
                         <span class="plan-feature-badge badge-estandar"><i class="fa-solid fa-bolt"></i> Plan Estándar</span>
                     </div>
 
-                    <div class="tank-card generator-card">
+                    <div class="tank-card generator-card" id="genCard">
                         <div class="tank-card-header">
                             <div class="tank-title-group">
-                                <div class="tank-avatar-circle gen-avatar">
+                                <div class="tank-avatar-circle gen-avatar" id="genAvatar">
                                     <i class="fa-solid fa-gas-pump"></i>
                                 </div>
                                 <div>
@@ -635,51 +635,51 @@
                                     <span class="tank-capacity"><i class="fa-solid fa-shield-halved"></i> Respaldo Automático ATS (Línea Invernadero)</span>
                                 </div>
                             </div>
-                            <span class="status-indicator-pill opt">Listo / En Espera</span>
+                            <span class="status-indicator-pill opt" id="genStatusPill">Listo / En Espera</span>
                         </div>
 
                         <!-- Grilla de Métricas del Generador -->
                         <div class="tank-sensors-grid">
                             <!-- 1. Nivel Combustible -->
-                            <div class="tank-metric-item">
+                            <div class="tank-metric-item" id="metricBoxGenFuel">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Nivel Diésel</span>
-                                    <i class="fa-solid fa-gas-pump text-amber"></i>
+                                    <i class="fa-solid fa-gas-pump text-amber" id="iconGenFuel"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>78</strong>
-                                    <small>% (78 L)</small>
+                                    <strong id="valGenFuel">78</strong>
+                                    <small id="lblLitersGenFuel">% (78 L)</small>
                                 </div>
                                 <div class="progress-track">
-                                    <div class="progress-fill green" style="width: 78%;"></div>
+                                    <div class="progress-fill green" id="progressFillGenFuel" style="width: 78%;"></div>
                                 </div>
-                                <span class="tank-metric-range">Rango Óptimo: <strong>> 35 %</strong></span>
+                                <span class="tank-metric-range" id="rangeGenFuel">Rango Óptimo: <strong>> 35 %</strong></span>
                             </div>
 
                             <!-- 2. Estado Operativo -->
-                            <div class="tank-metric-item">
+                            <div class="tank-metric-item" id="metricBoxGenMode">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Modo Operativo</span>
                                     <i class="fa-solid fa-power-off text-emerald"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong style="font-size: 15px;">Automático</strong>
+                                    <strong style="font-size: 15px;" id="valGenMode">Automático</strong>
                                     <small>(ATS)</small>
                                 </div>
                                 <span class="tank-metric-range">Rango Óptimo: <strong>Standby / Listo</strong></span>
                             </div>
 
                             <!-- 3. Batería de Arranque -->
-                            <div class="tank-metric-item">
+                            <div class="tank-metric-item" id="metricBoxGenBat">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Batería Arranque</span>
-                                    <i class="fa-solid fa-car-battery text-amber"></i>
+                                    <i class="fa-solid fa-car-battery text-amber" id="iconGenBat"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>12.8</strong>
+                                    <strong id="valGenBat">12.8</strong>
                                     <small>V</small>
                                 </div>
-                                <span class="tank-metric-range">Rango Óptimo: <strong>12.4 - 13.5 V</strong></span>
+                                <span class="tank-metric-range" id="rangeGenBat">Rango Óptimo: <strong>12.4 - 13.5 V</strong></span>
                             </div>
 
                             <!-- 4. Autonomía Estimada -->
@@ -689,7 +689,7 @@
                                     <i class="fa-solid fa-hourglass-half text-cyan"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>18.5</strong>
+                                    <strong id="valGenAutonomy">18.5</strong>
                                     <small>Horas</small>
                                 </div>
                                 <span class="tank-metric-range">Rango Óptimo: <strong>> 8.0 hrs</strong></span>
@@ -702,7 +702,7 @@
                                     <i class="fa-solid fa-plug text-indigo"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>220</strong>
+                                    <strong id="valGenVolt">220</strong>
                                     <small>V (50Hz)</small>
                                 </div>
                                 <span class="tank-metric-range">Rango Óptimo: <strong>210 - 230 V</strong></span>
@@ -715,7 +715,7 @@
                                     <i class="fa-solid fa-wrench text-muted"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>142</strong>
+                                    <strong id="valGenHours">142</strong>
                                     <small>horas</small>
                                 </div>
                                 <span class="tank-metric-range">Service en: <strong>58 horas</strong></span>
@@ -734,10 +734,10 @@
                         <span class="plan-feature-badge badge-premium"><i class="fa-solid fa-crown"></i> Plan Premium</span>
                     </div>
 
-                    <div class="tank-card solar-card">
+                    <div class="tank-card solar-card" id="solarCard">
                         <div class="tank-card-header">
                             <div class="tank-title-group">
-                                <div class="tank-avatar-circle solar-avatar">
+                                <div class="tank-avatar-circle solar-avatar" id="solarAvatar">
                                     <i class="fa-solid fa-sun"></i>
                                 </div>
                                 <div>
@@ -745,38 +745,38 @@
                                     <span class="tank-capacity"><i class="fa-solid fa-bolt-lightning"></i> 8x Paneles 550W (4.4 kWp) + Batería LiFePO4</span>
                                 </div>
                             </div>
-                            <span class="status-indicator-pill opt">100% Autosuficiente</span>
+                            <span class="status-indicator-pill opt" id="solarStatusPill">100% Autosuficiente</span>
                         </div>
 
                         <!-- Grilla de Métricas Solares -->
                         <div class="tank-sensors-grid">
                             <!-- 1. Batería Litio -->
-                            <div class="tank-metric-item">
+                            <div class="tank-metric-item" id="metricBoxSolarBat">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Carga Batería</span>
-                                    <i class="fa-solid fa-battery-full text-emerald"></i>
+                                    <i class="fa-solid fa-battery-full text-emerald" id="iconSolarBat"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>92</strong>
+                                    <strong id="valSolarBat">92</strong>
                                     <small>% (4.8 kWh)</small>
                                 </div>
                                 <div class="progress-track">
-                                    <div class="progress-fill green" style="width: 92%;"></div>
+                                    <div class="progress-fill green" id="progressFillSolarBat" style="width: 92%;"></div>
                                 </div>
-                                <span class="tank-metric-range">Rango Óptimo: <strong>> 40 %</strong></span>
+                                <span class="tank-metric-range" id="rangeSolarBat">Rango Óptimo: <strong>> 40 %</strong></span>
                             </div>
 
                             <!-- 2. Generación Solar Actual -->
-                            <div class="tank-metric-item">
+                            <div class="tank-metric-item" id="metricBoxSolarPower">
                                 <div class="tank-metric-top">
                                     <span class="tank-metric-name">Potencia Solar</span>
-                                    <i class="fa-solid fa-bolt-lightning text-amber"></i>
+                                    <i class="fa-solid fa-bolt-lightning text-amber" id="iconSolarPower"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>4.2</strong>
+                                    <strong id="valSolarPower">4.2</strong>
                                     <small>kW</small>
                                 </div>
-                                <span class="tank-metric-range">Rango Óptimo: <strong>1.5 - 5.5 kW</strong></span>
+                                <span class="tank-metric-range" id="rangeSolarPower">Rango Óptimo: <strong>1.5 - 5.5 kW</strong></span>
                             </div>
 
                             <!-- 3. Tensión MPPT -->
@@ -786,7 +786,7 @@
                                     <i class="fa-solid fa-gauge-high text-cyan"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>148</strong>
+                                    <strong id="valSolarVolt">148</strong>
                                     <small>V DC</small>
                                 </div>
                                 <span class="tank-metric-range">Rango Óptimo: <strong>120 - 180 V</strong></span>
@@ -799,7 +799,7 @@
                                     <i class="fa-solid fa-chart-line text-emerald"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>24.8</strong>
+                                    <strong id="valSolarYield">24.8</strong>
                                     <small>kWh</small>
                                 </div>
                                 <span class="tank-metric-range">Ahorro Red: <strong>88 % Hoy</strong></span>
@@ -812,7 +812,7 @@
                                     <i class="fa-solid fa-house-signal text-indigo"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>1.8</strong>
+                                    <strong id="valSolarCons">1.8</strong>
                                     <small>kW</small>
                                 </div>
                                 <span class="tank-metric-range">Abastecido: <strong>100% Solar</strong></span>
@@ -825,7 +825,7 @@
                                     <i class="fa-solid fa-microchip text-violet"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
-                                    <strong>97.4</strong>
+                                    <strong id="valSolarEff">97.4</strong>
                                     <small>%</small>
                                 </div>
                                 <span class="tank-metric-range">Rango Óptimo: <strong>> 95.0 %</strong></span>
