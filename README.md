@@ -1,37 +1,10 @@
 # Hydroponic Greenhouse IoT Platform (HydroGuard) 🌿💧⚡
 
-Plataforma escalable y de bajo coste para el monitoreo inteligente de invernaderos hidropónicos con soporte de suscripción multinivel (**Plan Base**, **Plan Estándar**, **Plan Premium**) y motor de alertas tempranas.
+Plataforma escalable y de bajo coste para el monitoreo inteligente de invernaderos hidropónicos con soporte de suscripción multinivel y motor de alertas tempranas.
 
 ---
 
-## 🏗️ Arquitectura del Sistema
 
-```
-                        +----------------------------------------+
-                        |  Microcontroladores IoT (ESP32 / Node) |
-                        |  - Sonda pH, DS18B20, Nivel Agua, EC   |
-                        |  - Nivel Combustible, Generador        |
-                        |  - Paneles Solares & Baterías          |
-                        +-------------------+--------------------+
-                                            |
-                                            | POST /api/v1/telemetry/ingest
-                                            v
-                 +------------------------------------------------------+
-                 |               Backend en FastAPI                     |
-                 |  - Autenticación de Dispositivos (API Key Hashing)   |
-                 |  - Motor de Alertas Tempranas (Reglas & Umbrales)    |
-                 |  - Filtro Adaptativo de Suscripción (Feature Flags)  |
-                 +-------------------+------------------+---------------+
-                                     |                  |
-                   Consultas / Writes|                  | GET /api/v1/dashboard/summary
-                                     v                  v
-                 +-------------------------+   +------------------------+
-                 |  PostgreSQL / Timescale |   |   Frontend Dashboard   |
-                 |  - Particionamiento     |   |   (React / Vue / App)  |
-                 |  - Series de Tiempo     |   +------------------------+
-                 |  - Planes & Dispositivos|
-                 +-------------------------+
-```
 
 ---
 
@@ -73,19 +46,7 @@ Plataforma escalable y de bajo coste para el monitoreo inteligente de invernader
 
 ---
 
-## 💎 Niveles de Suscripción y Módulos
 
-| Módulo / Característica | Plan Base | Plan Estándar | Plan Premium |
-| :--- | :---: | :---: | :---: |
-| **Sensores de Tanque** (pH, Temp, Nivel Agua, Nutrientes EC) | ✅ | ✅ | ✅ |
-| **Recordatorios Automáticos** (Dosificación, Limpieza, Filtros) | ✅ | ✅ | ✅ |
-| **Alertas Tempranas en Tiempo Real** | ✅ | ✅ | ✅ |
-| **Monitoreo de Generador Eléctrico** (Estado de Marcha, Batería) | ❌ | ✅ | ✅ |
-| **Control y Nivel de Combustible** (Autonomía estimada) | ❌ | ✅ | ✅ |
-| **Monitoreo de Paneles Solares** (Generación W, Voltaje) | ❌ | ❌ | ✅ |
-| **Estado y Carga de Banco de Baterías Solares** | ❌ | ❌ | ✅ |
-
----
 
 ## 🚀 Guía de Instalación y Ejecución
 
