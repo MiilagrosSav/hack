@@ -13,6 +13,7 @@ class AlertOut(BaseModel):
     status: str
     title: str
     message: str
+    pasos_resolucion: Optional[str] = None
     trigger_value: Optional[float] = None
     threshold_value: Optional[float] = None
     created_at: datetime

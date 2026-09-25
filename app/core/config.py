@@ -1,6 +1,6 @@
-from typing import List, Union
+from typing import List, Union, Optional
 from pydantic_settings import BaseSettings
-from pydantic import AnyHttpUrl, validator
+from pydantic import AnyHttpUrl
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Hydroponic Greenhouse IoT Platform"
@@ -12,6 +12,16 @@ class Settings(BaseSettings):
 
     # Conexión a PostgreSQL
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/hydroponics_db"
+
+    # Configuración de Broker MQTT para Nodos IoT (ESP32)
+    MQTT_BROKER_HOST: str = "localhost" # Broker MQTT (Mosquitto / EMQX / HiveMQ)
+    MQTT_BROKER_PORT: int = 1883
+    MQTT_USERNAME: Optional[str] = None
+    MQTT_PASSWORD: Optional[str] = None
+    MQTT_KEEPALIVE: int = 60
+    MQTT_CLIENT_ID: str = "hydroguard-backend-subscriber"
+    MQTT_BASE_TOPIC: str = "hydroguard" # Tópico raíz: hydroguard/gh/+/devices/+/telemetry
+    MQTT_ENABLED: bool = True
 
     # CORS
     BACKEND_CORS_ORIGINS: List[Union[str, AnyHttpUrl]] = [

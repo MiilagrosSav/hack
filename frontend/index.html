@@ -47,8 +47,10 @@
                 <a href="#secEnvironment" class="sidebar-link"><i class="fa-solid fa-cloud-sun"></i> Microclima
                     Invernadero</a>
                 <a href="#secTanks" class="sidebar-link"><i class="fa-solid fa-water"></i> Tanques de Solución</a>
-                <a href="#secGenerator" class="sidebar-link nav-estandar" id="sidebarLinkGen" style="display: none;"><i class="fa-solid fa-charging-station text-amber"></i> Generador & Diésel</a>
-                <a href="#secSolar" class="sidebar-link nav-premium" id="sidebarLinkSolar" style="display: none;"><i class="fa-solid fa-solar-panel text-violet"></i> Sistema Solar & Bat.</a>
+                <a href="#secGenerator" class="sidebar-link nav-estandar" id="sidebarLinkGen" style="display: none;"><i
+                        class="fa-solid fa-charging-station text-amber"></i> Generador & Diésel</a>
+                <a href="#secSolar" class="sidebar-link nav-premium" id="sidebarLinkSolar" style="display: none;"><i
+                        class="fa-solid fa-solar-panel text-violet"></i> Sistema Solar & Bat.</a>
             </nav>
 
             <div class="sidebar-quick-actions">
@@ -106,7 +108,8 @@
                         </select>
                         <i class="fa-solid fa-chevron-down pill-chevron"></i>
                     </div>
-                    <button class="user-plan-pill plan-base" id="userPlanPill" onclick="cyclePlan()" title="Presione para alternar Plan (Base -> Estándar -> Premium)">
+                    <button class="user-plan-pill plan-base" id="userPlanPill" onclick="cyclePlan()"
+                        title="Presione para alternar Plan (Base -> Estándar -> Premium)">
                         <i class="fa-solid fa-leaf plan-pill-icon" id="planPillIcon"></i>
                         <span id="txtUserPlan">PLAN BASE</span>
                         <i class="fa-solid fa-arrows-rotate plan-pill-rotate"></i>
@@ -225,7 +228,8 @@
                                     <strong id="valEnvTemp">24.5</strong>
                                     <small>°C</small>
                                 </div>
-                                <span class="tank-metric-range" id="rangeEnvTemp">Rango Óptimo: <strong>18.0 - 28.0 °C</strong></span>
+                                <span class="tank-metric-range" id="rangeEnvTemp">Rango Óptimo: <strong>18.0 - 28.0
+                                        °C</strong></span>
                             </div>
 
                             <!-- 2. Humedad Aire -->
@@ -238,20 +242,22 @@
                                     <strong id="valEnvHum">68</strong>
                                     <small>%</small>
                                 </div>
-                                <span class="tank-metric-range" id="rangeEnvHum">Rango Óptimo: <strong>55 - 80 %</strong></span>
+                                <span class="tank-metric-range" id="rangeEnvHum">Rango Óptimo: <strong>55 - 80
+                                        %</strong></span>
                             </div>
 
                             <!-- 3. Radiación Solar -->
                             <div class="tank-metric-item" id="metricBoxEnvRad">
                                 <div class="tank-metric-top">
-                                    <span class="tank-metric-name">Radiación Solar</span>
+                                    <span class="tank-metric-name">Radiación</span>
                                     <i class="fa-solid fa-sun text-amber" id="iconEnvRad"></i>
                                 </div>
                                 <div class="tank-metric-val-row">
                                     <strong id="valEnvRad">650</strong>
                                     <small>W/m²</small>
                                 </div>
-                                <span class="tank-metric-range" id="rangeEnvRad">Rango Óptimo: <strong>200 - 900 W/m²</strong></span>
+                                <span class="tank-metric-range" id="rangeEnvRad">Rango Óptimo: <strong>200 - 900
+                                        W/m²</strong></span>
                             </div>
 
                             <!-- 4. Sensor CO2 -->
@@ -264,21 +270,12 @@
                                     <strong id="valEnvCO2">720</strong>
                                     <small>ppm</small>
                                 </div>
-                                <span class="tank-metric-range" id="rangeEnvCO2">Rango Óptimo: <strong>400 - 1000 ppm</strong></span>
+                                <span class="tank-metric-range" id="rangeEnvCO2">Rango Óptimo: <strong>400 - 1000
+                                        ppm</strong></span>
                             </div>
 
                             <!-- 5. Flujo de Aire -->
-                            <div class="tank-metric-item wide-span" id="metricBoxEnvFlow">
-                                <div class="tank-metric-top">
-                                    <span class="tank-metric-name">Flujo de Aire (Ventilación)</span>
-                                    <i class="fa-solid fa-wind text-emerald" id="iconEnvFlow"></i>
-                                </div>
-                                <div class="tank-metric-val-row">
-                                    <strong id="valEnvFlow">1.4</strong>
-                                    <small>m/s</small>
-                                </div>
-                                <span class="tank-metric-range" id="rangeEnvFlow">Rango Óptimo: <strong>0.5 - 3.0 m/s</strong></span>
-                            </div>
+
                         </div>
                     </div>
                 </section>
@@ -293,7 +290,7 @@
                         <div class="tanks-header-right">
                             <span class="tanks-count-badge" id="tanksCountBadge">4 Tanques</span>
                             <button class="btn-add-tank-inline" onclick="addNewTankPrompt()"><i
-                                     class="fa-solid fa-plus"></i> Agregar Tanque</button>
+                                    class="fa-solid fa-plus"></i> Agregar Tanque</button>
                         </div>
                     </div>
 
@@ -342,7 +339,8 @@
                                         <strong id="valEC1">1.6</strong>
                                         <small>mS/cm</small>
                                     </div>
-                                    <span class="tank-metric-range" id="rangeEC1">Rango Óptimo: <strong>1.2 - 2.0</strong></span>
+                                    <span class="tank-metric-range" id="rangeEC1">Rango Óptimo: <strong>1.2 -
+                                            2.0</strong></span>
                                 </div>
 
                                 <!-- 3. Cantidad / Nivel de Agua (En Rojo / 25%) -->
@@ -373,7 +371,8 @@
                                         <strong id="valTemp1">21.5</strong>
                                         <small>°C</small>
                                     </div>
-                                    <span class="tank-metric-range" id="rangeTemp1">Rango Óptimo: <strong>18.0 - 24.0 °C</strong></span>
+                                    <span class="tank-metric-range" id="rangeTemp1">Rango Óptimo: <strong>18.0 - 24.0
+                                            °C</strong></span>
                                 </div>
 
                                 <!-- 5. Caudal -->
@@ -400,7 +399,8 @@
                                         <strong id="valOxy1">7.8</strong>
                                         <small>mg/L</small>
                                     </div>
-                                    <span class="tank-metric-range" id="rangeOxy1">Rango Óptimo: <strong>> 6.5 mg/L</strong></span>
+                                    <span class="tank-metric-range" id="rangeOxy1">Rango Óptimo: <strong>> 6.5
+                                            mg/L</strong></span>
                                 </div>
                             </div>
                         </div>
@@ -621,7 +621,8 @@
                             <i class="fa-solid fa-charging-station text-amber"></i>
                             <h2>Generador & Combustible</h2>
                         </div>
-                        <span class="plan-feature-badge badge-estandar"><i class="fa-solid fa-bolt"></i> Plan Estándar</span>
+                        <span class="plan-feature-badge badge-estandar"><i class="fa-solid fa-bolt"></i> Plan
+                            Estándar</span>
                     </div>
 
                     <div class="tank-card generator-card" id="genCard">
@@ -632,7 +633,8 @@
                                 </div>
                                 <div>
                                     <h3 class="tank-name">Generador Diésel 15 kVA</h3>
-                                    <span class="tank-capacity"><i class="fa-solid fa-shield-halved"></i> Respaldo Automático ATS (Línea Invernadero)</span>
+                                    <span class="tank-capacity"><i class="fa-solid fa-shield-halved"></i> Respaldo
+                                        Automático ATS (Línea Invernadero)</span>
                                 </div>
                             </div>
                             <span class="status-indicator-pill opt" id="genStatusPill">Listo / En Espera</span>
@@ -653,7 +655,8 @@
                                 <div class="progress-track">
                                     <div class="progress-fill green" id="progressFillGenFuel" style="width: 78%;"></div>
                                 </div>
-                                <span class="tank-metric-range" id="rangeGenFuel">Rango Óptimo: <strong>> 35 %</strong></span>
+                                <span class="tank-metric-range" id="rangeGenFuel">Rango Óptimo: <strong>> 35
+                                        %</strong></span>
                             </div>
 
                             <!-- 2. Estado Operativo -->
@@ -679,7 +682,8 @@
                                     <strong id="valGenBat">12.8</strong>
                                     <small>V</small>
                                 </div>
-                                <span class="tank-metric-range" id="rangeGenBat">Rango Óptimo: <strong>12.4 - 13.5 V</strong></span>
+                                <span class="tank-metric-range" id="rangeGenBat">Rango Óptimo: <strong>12.4 - 13.5
+                                        V</strong></span>
                             </div>
 
                             <!-- 4. Autonomía Estimada -->
@@ -731,7 +735,8 @@
                             <i class="fa-solid fa-solar-panel text-violet"></i>
                             <h2>Sistema Solar & Baterías</h2>
                         </div>
-                        <span class="plan-feature-badge badge-premium"><i class="fa-solid fa-crown"></i> Plan Premium</span>
+                        <span class="plan-feature-badge badge-premium"><i class="fa-solid fa-crown"></i> Plan
+                            Premium</span>
                     </div>
 
                     <div class="tank-card solar-card" id="solarCard">
@@ -742,7 +747,8 @@
                                 </div>
                                 <div>
                                     <h3 class="tank-name">Banco Solar 48V & Inversor 5kW</h3>
-                                    <span class="tank-capacity"><i class="fa-solid fa-bolt-lightning"></i> 8x Paneles 550W (4.4 kWp) + Batería LiFePO4</span>
+                                    <span class="tank-capacity"><i class="fa-solid fa-bolt-lightning"></i> 8x Paneles
+                                        550W (4.4 kWp) + Batería LiFePO4</span>
                                 </div>
                             </div>
                             <span class="status-indicator-pill opt" id="solarStatusPill">100% Autosuficiente</span>
@@ -761,9 +767,11 @@
                                     <small>% (4.8 kWh)</small>
                                 </div>
                                 <div class="progress-track">
-                                    <div class="progress-fill green" id="progressFillSolarBat" style="width: 92%;"></div>
+                                    <div class="progress-fill green" id="progressFillSolarBat" style="width: 92%;">
+                                    </div>
                                 </div>
-                                <span class="tank-metric-range" id="rangeSolarBat">Rango Óptimo: <strong>> 40 %</strong></span>
+                                <span class="tank-metric-range" id="rangeSolarBat">Rango Óptimo: <strong>> 40
+                                        %</strong></span>
                             </div>
 
                             <!-- 2. Generación Solar Actual -->
@@ -776,7 +784,8 @@
                                     <strong id="valSolarPower">4.2</strong>
                                     <small>kW</small>
                                 </div>
-                                <span class="tank-metric-range" id="rangeSolarPower">Rango Óptimo: <strong>1.5 - 5.5 kW</strong></span>
+                                <span class="tank-metric-range" id="rangeSolarPower">Rango Óptimo: <strong>1.5 - 5.5
+                                        kW</strong></span>
                             </div>
 
                             <!-- 3. Tensión MPPT -->
@@ -897,7 +906,8 @@
                     <button class="btn-sim red" onclick="applyPreset('critico')"><i
                             class="fa-solid fa-triangle-exclamation"></i> Alerta Crítica</button>
                 </div>
-                <button class="btn-open-calib-modal" onclick="openCalibrationModal()"><i class="fa-solid fa-sliders"></i> Abrir Panel de Control BD</button>
+                <button class="btn-open-calib-modal" onclick="openCalibrationModal()"><i
+                        class="fa-solid fa-sliders"></i> Abrir Panel de Control BD</button>
             </div>
 
             <div class="drawer-footer">
@@ -908,7 +918,8 @@
     </aside>
 
     <!-- BOTÓN FLOTANTE RÁPIDO PARA ABRIR EL PANEL DE CONTROL / BD -->
-    <button class="btn-floating-sim" id="btnFloatingSim" onclick="openCalibrationModal()" title="Modificar Parámetros y Probar Base de Datos">
+    <button class="btn-floating-sim" id="btnFloatingSim" onclick="openCalibrationModal()"
+        title="Modificar Parámetros y Probar Base de Datos">
         <i class="fa-solid fa-sliders"></i>
         <span>Probar Parámetros (BD)</span>
     </button>
@@ -924,7 +935,8 @@
                         <p>Modifica valores en vivo en PostgreSQL y prueba las alertas</p>
                     </div>
                 </div>
-                <button class="btn-close-modal" onclick="closeCalibrationModal()"><i class="fa-solid fa-xmark"></i></button>
+                <button class="btn-close-modal" onclick="closeCalibrationModal()"><i
+                        class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="calib-modal-body">
@@ -959,57 +971,80 @@
                     <!-- 1. pH Tanque 1 -->
                     <div class="slider-control-card">
                         <div class="slider-top">
-                            <span class="slider-label"><i class="fa-solid fa-vial text-cyan"></i> pH Tanque Principal #1:</span>
+                            <span class="slider-label"><i class="fa-solid fa-vial text-cyan"></i> pH Tanque Principal
+                                #1:</span>
                             <span class="slider-val-badge" id="lblSliderPH">7.2 pH</span>
                         </div>
-                        <input type="range" min="4.0" max="9.0" step="0.1" value="7.2" class="param-slider" id="sliderPH" oninput="onSliderChange('TANK_1_PH', this.value, 'lblSliderPH', ' pH')">
-                        <div class="slider-range-hint">Rango Seguro: <strong>5.5 - 6.5 pH</strong> | Crítico: <strong>< 5.0 o > 7.0</strong></div>
+                        <input type="range" min="4.0" max="9.0" step="0.1" value="7.2" class="param-slider"
+                            id="sliderPH" oninput="onSliderChange('TANK_1_PH', this.value, 'lblSliderPH', ' pH')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>5.5 - 6.5 pH</strong> | Crítico: <strong>
+                                < 5.0 o> 7.0
+                            </strong></div>
                     </div>
 
                     <!-- 2. Nivel de Agua Tanque 1 -->
                     <div class="slider-control-card">
                         <div class="slider-top">
-                            <span class="slider-label"><i class="fa-solid fa-water-ladder text-emerald"></i> Nivel de Agua Tanque #1:</span>
+                            <span class="slider-label"><i class="fa-solid fa-water-ladder text-emerald"></i> Nivel de
+                                Agua Tanque #1:</span>
                             <span class="slider-val-badge" id="lblSliderLevel">25 %</span>
                         </div>
-                        <input type="range" min="10" max="100" step="1" value="25" class="param-slider" id="sliderLevel" oninput="onSliderChange('TANK_1_WATER_LEVEL', this.value, 'lblSliderLevel', ' %')">
-                        <div class="slider-range-hint">Rango Seguro: <strong>> 35 %</strong> | Crítico: <strong>< 28 %</strong></div>
+                        <input type="range" min="10" max="100" step="1" value="25" class="param-slider" id="sliderLevel"
+                            oninput="onSliderChange('TANK_1_WATER_LEVEL', this.value, 'lblSliderLevel', ' %')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>> 35 %</strong> | Crítico: <strong>
+                                < 28 %</strong>
+                        </div>
                     </div>
 
                     <!-- 3. Temperatura del Aire -->
                     <div class="slider-control-card">
                         <div class="slider-top">
-                            <span class="slider-label"><i class="fa-solid fa-temperature-high text-amber"></i> Temp. Aire Invernadero:</span>
+                            <span class="slider-label"><i class="fa-solid fa-temperature-high text-amber"></i> Temp.
+                                Aire Invernadero:</span>
                             <span class="slider-val-badge" id="lblSliderTempAir">24.5 °C</span>
                         </div>
-                        <input type="range" min="10" max="42" step="0.5" value="24.5" class="param-slider" id="sliderTempAir" oninput="onSliderChange('ENV_TEMP_AIR', this.value, 'lblSliderTempAir', ' °C')">
-                        <div class="slider-range-hint">Rango Seguro: <strong>18.0 - 28.0 °C</strong> | Crítico: <strong>> 35.0 °C</strong></div>
+                        <input type="range" min="10" max="42" step="0.5" value="24.5" class="param-slider"
+                            id="sliderTempAir"
+                            oninput="onSliderChange('ENV_TEMP_AIR', this.value, 'lblSliderTempAir', ' °C')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>18.0 - 28.0 °C</strong> | Crítico:
+                            <strong>> 35.0 °C</strong>
+                        </div>
                     </div>
 
                     <!-- 4. Nivel Diésel Generador -->
                     <div class="slider-control-card" id="calibRowGen">
                         <div class="slider-top">
-                            <span class="slider-label"><i class="fa-solid fa-gas-pump text-amber"></i> Diésel Generador (Plan Estándar/Premium):</span>
+                            <span class="slider-label"><i class="fa-solid fa-gas-pump text-amber"></i> Diésel Generador
+                                (Plan Estándar/Premium):</span>
                             <span class="slider-val-badge" id="lblSliderFuel">78 %</span>
                         </div>
-                        <input type="range" min="5" max="100" step="1" value="78" class="param-slider" id="sliderFuel" oninput="onSliderChange('GEN_FUEL', this.value, 'lblSliderFuel', ' %')">
-                        <div class="slider-range-hint">Rango Seguro: <strong>> 35 %</strong> | Crítico: <strong>< 15 %</strong></div>
+                        <input type="range" min="5" max="100" step="1" value="78" class="param-slider" id="sliderFuel"
+                            oninput="onSliderChange('GEN_FUEL', this.value, 'lblSliderFuel', ' %')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>> 35 %</strong> | Crítico: <strong>
+                                < 15 %</strong>
+                        </div>
                     </div>
 
                     <!-- 5. Batería Solar -->
                     <div class="slider-control-card" id="calibRowSolar">
                         <div class="slider-top">
-                            <span class="slider-label"><i class="fa-solid fa-solar-panel text-violet"></i> Carga Batería Solar (Plan Premium):</span>
+                            <span class="slider-label"><i class="fa-solid fa-solar-panel text-violet"></i> Carga Batería
+                                Solar (Plan Premium):</span>
                             <span class="slider-val-badge" id="lblSliderSolarBat">92 %</span>
                         </div>
-                        <input type="range" min="10" max="100" step="1" value="92" class="param-slider" id="sliderSolarBat" oninput="onSliderChange('SOLAR_BATTERY_PCT', this.value, 'lblSliderSolarBat', ' %')">
-                        <div class="slider-range-hint">Rango Seguro: <strong>> 40 %</strong> | Crítico: <strong>< 20 %</strong></div>
+                        <input type="range" min="10" max="100" step="1" value="92" class="param-slider"
+                            id="sliderSolarBat"
+                            oninput="onSliderChange('SOLAR_BATTERY_PCT', this.value, 'lblSliderSolarBat', ' %')">
+                        <div class="slider-range-hint">Rango Seguro: <strong>> 40 %</strong> | Crítico: <strong>
+                                < 20 %</strong>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="calib-modal-footer">
-                <div class="db-sync-status"><i class="fa-solid fa-circle-check text-emerald"></i> Conectado a PostgreSQL en vivo</div>
+                <div class="db-sync-status"><i class="fa-solid fa-circle-check text-emerald"></i> Conectado a PostgreSQL
+                    en vivo</div>
                 <button class="btn-calib-done" onclick="closeCalibrationModal()">Cerrar y Ver Dashboard</button>
             </div>
         </div>

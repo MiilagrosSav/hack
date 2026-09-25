@@ -156,6 +156,7 @@ CREATE TABLE alerts (
     message TEXT NOT NULL,
     trigger_value NUMERIC(10, 3),
     threshold_value NUMERIC(10, 3),
+    pasos_resolucion TEXT, -- Recetario de instrucciones correctivas calculadas dinámicamente
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     acknowledged_at TIMESTAMPTZ,
     resolved_at TIMESTAMPTZ

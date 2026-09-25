@@ -208,6 +208,7 @@ class Alert(Base):
     message = Column(Text, nullable=False)
     trigger_value = Column(Numeric(10, 3), nullable=True)
     threshold_value = Column(Numeric(10, 3), nullable=True)
+    pasos_resolucion = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
     acknowledged_at = Column(DateTime(timezone=True), nullable=True)
     resolved_at = Column(DateTime(timezone=True), nullable=True)

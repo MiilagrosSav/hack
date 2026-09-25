@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,19 +7,29 @@ from fastapi.responses import FileResponse
 from app.core.config import settings
 from app.api.v1.api import api_router
 from app.core.database import engine, Base
+from app.services.mqtt_service import mqtt_service
 
 # Crear tablas si no existen (en caso de pruebas rápidas sin migraciones de Alembic)
 Base.metadata.create_all(bind=engine)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Inicio: Iniciar cliente MQTT en segundo plano
+    mqtt_service.start()
+    yield
+    # Cierre: Detener cliente MQTT
+    mqtt_service.stop()
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan,
     description="""
     ## API de Monitoreo Inteligente de Invernaderos Hidropónicos 🌿💧
     
     ### Características Principales:
-    - **Ingesta de Telemetría IoT en Tiempo Real** para microcontroladores ESP32/Raspberry Pi.
-    - **Motor de Alertas Tempranas**: Detección inmediata de anomalías en pH, nivel de agua, temperatura, combustible y energía solar.
+    - **Ingesta de Telemetría IoT en Tiempo Real con MQTT (Mosquitto/EMQX) y QoS 1**.
+    - **Motor de Asistencia Pasiva**: Detección inmediata y recetario agronómico con cálculo de dosis exactas.
     - **Dashboard Dinámico Adaptativo**: Filtrado de datos por suscripción (**Plan Base**, **Plan Estándar**, **Plan Premium**).
     - **Gestión de Recordatorios Automáticos** de mantenimiento y dosificación.
     """,

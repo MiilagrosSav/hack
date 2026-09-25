@@ -701,6 +701,169 @@ body {
     transition: all 0.2s ease;
 }
 
+.btn-action-suggested.critical {
+    background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
+}
+
+.btn-action-suggested.warning {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+}
+
+.btn-action-suggested:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+/* =============================================================================
+   PANEL DE ACCIÓN: RECETARIO DE ASISTENCIA PASIVA
+   ============================================================================= */
+.recipe-accordion {
+    margin-top: 6px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.08);
+    padding-top: 8px;
+}
+
+.btn-toggle-recipe {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-recipe:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.recipe-box {
+    display: none;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 10px;
+    animation: fadeIn 0.3s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.recipe-box.open {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.recipe-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.recipe-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.recipe-badge-dose {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 8px;
+}
+
+.recipe-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 4px 0;
+}
+
+.recipe-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12px;
+    color: #334155;
+    line-height: 1.45;
+    background: #f8fafc;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border-left: 3px solid #10b981;
+}
+
+.recipe-step-num {
+    background: #10b981;
+    color: #ffffff;
+    font-size: 10.5px;
+    font-weight: 800;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.recipe-disclaimer {
+    font-size: 11px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 8px 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-style: italic;
+}
+
+.btn-complete-recipe {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-complete-recipe:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* =============================================================================
    4. MICROCLIMA Y TANQUES (DISEÑO UNIFICADO DE TARJETAS Y SENSORES)
    ============================================================================= */

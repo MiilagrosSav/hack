@@ -111,6 +111,7 @@ def get_simulation_state(tier: str = "BASE", db: Session = Depends(get_db)):
             "sensor_code": sensor_code,
             "title": a.title,
             "message": a.message,
+            "pasos_resolucion": a.pasos_resolucion,
             "severity": a.severity.value,
             "status": a.status.value,
             "trigger_value": float(a.trigger_value) if a.trigger_value is not None else None,

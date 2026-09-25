@@ -127,7 +127,7 @@ async function fetchLiveState() {
     try {
         const response = await fetch(`/api/v1/simulation/state?tier=${tier}`);
         if (!response.ok) throw new Error("Error al consultar estado de la BD");
-        
+
         const data = await response.json();
         updateUIFromData(data);
     } catch (err) {
@@ -441,7 +441,7 @@ function renderAlertsFeed(alerts) {
                     <span class="badge-status-pill badge-resolved">NORMAL</span>
                 </div>
                 <p class="alert-description" style="color: #15803d; font-weight: 600;">
-                    No hay alertas activas en PostgreSQL. La solución nutritiva y el microclima están estables.
+                    La solución nutritiva y el microclima están estables.
                 </p>
             </div>
         `;
@@ -457,7 +457,60 @@ function renderAlertsFeed(alerts) {
         const badgeText = isCritical ? 'CRÍTICO' : 'ATENCIÓN';
         const icon = isCritical ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-temperature-half';
 
-        // Botón de resolución individual para CADA alerta específica
+        // Procesar receta de asistencia pasiva si existe
+        let recipeHTML = '';
+        if (a.pasos_resolucion) {
+            const lines = a.pasos_resolucion.split('\n').filter(l => l.trim().length > 0);
+            let headerTitle = 'Receta Correctiva Calculada';
+            let doseBadge = '';
+            const stepItems = [];
+
+            lines.forEach(l => {
+                if (l.startsWith('Receta Correctiva:')) {
+                    headerTitle = l.replace('Receta Correctiva:', '').trim();
+                } else if (l.includes('Dosis calculada:') || l.includes('Reposición estimada:') || l.includes('Dilución requerida:') || l.includes('Carga requerida:')) {
+                    doseBadge = l.replace(/•/g, '').trim();
+                } else if (l.includes('• Paso') || l.startsWith('Paso')) {
+                    const cleanText = l.replace(/•/g, '').trim();
+                    stepItems.push(cleanText);
+                } else if (l.startsWith('•')) {
+                    stepItems.push(l.replace(/•/g, '').trim());
+                }
+            });
+
+            recipeHTML = `
+                <div class="recipe-accordion">
+                    <button class="btn-toggle-recipe" onclick="toggleRecipe('${a.id}')">
+                        <span><i class="fa-solid fa-clipboard-list" style="color: #10b981; margin-right: 6px;"></i> Receta de Asistencia Pasiva</span>
+                        <i class="fa-solid fa-chevron-down" id="recipe_chevron_${a.id}"></i>
+                    </button>
+                    <div class="recipe-box" id="recipe_box_${a.id}">
+                        <div class="recipe-header-row">
+                            <span class="recipe-title"><i class="fa-solid fa-flask-vial text-emerald"></i> ${headerTitle}</span>
+                            ${doseBadge ? `<span class="recipe-badge-dose">${doseBadge}</span>` : ''}
+                        </div>
+                        <div class="recipe-steps-list">
+                            ${stepItems.map((step, idx) => `
+                                <div class="recipe-step-item">
+                                    <span class="recipe-step-num">${idx + 1}</span>
+                                    <span>${step}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="recipe-disclaimer">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Asistencia Pasiva: El sistema no acciona motores automáticamente. Siga los pasos manuales calculados.</span>
+                        </div>
+                        <button class="btn-complete-recipe" onclick="resolveSingleAlert('${a.id}', '${a.sensor_code}')">
+                            <i class="fa-solid fa-check"></i>
+                            <span>Marcar Acción Realizada y Normalizar</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Card completa en el Panel de Acción
         html += `
             <div class="${cardClass}" id="alert_card_${a.id}">
                 <div class="alert-card-top">
@@ -473,15 +526,26 @@ function renderAlertsFeed(alerts) {
                     <span class="${badgeClass}">${badgeText}</span>
                 </div>
                 <p class="alert-description">${a.message}</p>
-                <button class="btn-action-suggested ${isCritical ? 'critical' : 'warning'}" onclick="resolveSingleAlert('${a.id}', '${a.sensor_code}')">
-                    <span>Acción sugerida: Normalizar y resolver esta alerta</span>
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
+                
+                ${recipeHTML}
+
+                
             </div>
         `;
     });
 
     alertsFeed.innerHTML = html;
+}
+
+function toggleRecipe(alertId) {
+    const box = document.getElementById(`recipe_box_${alertId}`);
+    const chev = document.getElementById(`recipe_chevron_${alertId}`);
+    if (box) {
+        box.classList.toggle('open');
+        if (chev) {
+            chev.className = box.classList.contains('open') ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+        }
+    }
 }
 
 // Resolver ÚNICAMENTE la alerta seleccionada
@@ -500,7 +564,7 @@ async function resolveSingleAlert(alertId, sensorCode) {
 
         if (res.ok) {
             const data = await res.json();
-            showToast(`✅ <strong>Alerta resuelta:</strong> ${sensorCode.replace(/_/g, ' ')} restablecido a valores seguros.`);
+            showToast(`✅ <strong>Alerta resuelta:</strong> ${sensorCode ? sensorCode.replace(/_/g, ' ') : 'Sensor'} restablecido a valores óptimos.`);
             // Refrescar estado en vivo (las demás alertas permanecen intactas)
             fetchLiveState();
         }
